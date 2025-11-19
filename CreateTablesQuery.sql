@@ -30,7 +30,7 @@ CREATE TABLE laboratory(
     building_id INT NOT NULL,
     room_code INT NOT NULL,
     capacity INT NOT NULL, 
-    status ENUM('Active', 'Maintenance', 'Closed'),
+    status ENUM('Active', 'Maintenance', 'Closed')NOT NULL,
     FOREIGN KEY (building_id) REFERENCES building(building_id) ON DELETE RESTRICT ON UPDATE CASCADE,
     UNIQUE(building_id, room_code)
 );
