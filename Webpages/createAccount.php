@@ -26,14 +26,15 @@
 
         if(!$hasError)
         {
-            $insertUser = "INSERT INTO user (user_type, email, password, full_name) 
+            $insertUser = "INSERT INTO user (user_type, email, user_password, full_name) 
                            VALUES ('Student', '$email', '$password', '$fullName')";
+
 
             mysqli_query($connection, $insertUser);
             $user_id = mysqli_insert_id($connection); // gets last inserted ID
 
-            $insertStudent = "INSERT INTO student (user_id, student_type)
-                              VALUES ('$user_id', '$student_type')";
+            $insertStudent = "INSERT INTO student (user_id, student_type, department)
+                              VALUES ('$user_id', '$student_type', '$department')";
             mysqli_query($connection, $insertStudent);
             header("Location:login.php");
             exit();            
