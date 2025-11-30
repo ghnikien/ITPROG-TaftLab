@@ -8,7 +8,7 @@ CREATE TABLE user(
 
 CREATE TABLE student (
     user_id INT PRIMARY KEY,
-    student_type VARCHAR(25) NOT NULL,
+    student_type ENUM('SHS', 'UG', 'GD') NOT NULL,
     department ENUM('CCS', 'COS', 'CLA', 'BAGCED', 'COL', 'GCOE', 'RVRCOB', 'SOE', 'Integrated School') NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
  );
@@ -18,7 +18,7 @@ CREATE TABLE student (
     job_position VARCHAR(30) NOT NULL,
     department VARCHAR(30) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
- );
+ );	
 
 CREATE TABLE building(
     building_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -46,7 +46,8 @@ CREATE TABLE reservation (
     reserve_endTime TIME NOT NULL,
     status ENUM ('Active', 'Cancelled', 'Completed') NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE RESTRICT ON UPDATE CASCADE, 
-    FOREIGN KEY (lab_id) REFERENCES laboratory(lab_id) ON DELETE RESTRICT ON UPDATE CASCADE
+    FOREIGN KEY (lab_id) REFERENCES laboratory(lab_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE(lab_id, date_reserved, reserve_startTime, reserve_endTime)
  );
  
  CREATE TABLE existing_class(
@@ -64,5 +65,6 @@ CREATE TABLE reservation (
     class_day ENUM('Mon','Tue','Wed','Thu','Fri','Sat','Sun') NOT NULL,
 	start_time TIME NOT NULL,
 	end_time TIME NOT NULL,
-    FOREIGN KEY (class_id) REFERENCES existing_class(class_id) ON DELETE CASCADE ON UPDATE CASCADE #schedules are removed if class is deleted
+    FOREIGN KEY (class_id) REFERENCES existing_class(class_id) ON DELETE CASCADE ON UPDATE CASCADE, #schedules are removed if class is deleted
+    UNIQUE(class_id, class_day, start_time, end_time)
  );
