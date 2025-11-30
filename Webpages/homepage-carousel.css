@@ -23,9 +23,17 @@ html {
   scroll-behavior: smooth;
 }
 
-@media (min-width: 1440px) { html { zoom: 1.5; } }
-@media (min-width: 2560px) { html { zoom: 1.7; } }
-@media (min-width: 3860px) { html { zoom: 2.5; } }
+@media (min-width: 1440px) { 
+  html { zoom: 1.5; } 
+}
+
+@media (min-width: 2560px) { 
+  html { zoom: 1.7; } 
+}
+
+@media (min-width: 3860px) { 
+  html { zoom: 2.5; } 
+}
 
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 1.3rem; }
@@ -43,7 +51,6 @@ body {
    overflow-x: hidden;
 }
 
-/* LAYOUT */
 .container {
   max-width: 124rem;
   padding: 0 1rem;
@@ -58,18 +65,18 @@ body {
   padding: 2rem 0;
 }
 
-/* SECTION */
 #tranding { padding: 4rem 0; }
 @media (max-width:1440px) { #tranding { padding: 7rem 0; } }
 
-/* SWIPER WRAPPER AREA */
 #tranding .tranding-slider {
   height: 52rem;
   padding: 2rem 0;
   position: relative;
 }
 @media (max-width:500px) {
-  #tranding .tranding-slider { height: 45rem; }
+  #tranding .tranding-slider { 
+    height: 45rem; 
+  }
 }
 
 /* SWIPER SLIDES */
@@ -81,7 +88,9 @@ body {
 
 /* NAVIGATION + PAGINATION */
 .swiper-slide-shadow-left,
-.swiper-slide-shadow-right { display: none; }
+.swiper-slide-shadow-right { 
+  display: none; 
+}
 
 .tranding-slider-control {
   position: relative;
@@ -139,7 +148,9 @@ body {
   color: #222224;
 }
 
-.tranding-slider-control .slider-arrow::after { content: ''; }
+.tranding-slider-control .slider-arrow::after { 
+  content: ''; 
+}
 
 .tranding-slider-control .swiper-pagination {
   position: relative;
@@ -189,8 +200,6 @@ body {
   text-overflow: clip;     
   max-width: 100%;
   display: block;
-
-  /* SHRINK TEXT AUTOMATICALLY */
   font-size: clamp(0.1rem, 2.5vw, 1.9rem) !important;
 }
 
