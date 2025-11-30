@@ -16,7 +16,6 @@ CREATE TABLE student (
  CREATE TABLE admin (
     user_id INT PRIMARY KEY,
     job_position VARCHAR(30) NOT NULL,
-    department VARCHAR(30) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
  );	
 
