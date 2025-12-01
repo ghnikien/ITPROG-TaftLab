@@ -27,9 +27,9 @@ html {
   html { zoom: 1.5; } 
 }
 
-@media (min-width: 2560px) {
-   html { zoom: 1.7; } 
-  }
+@media (min-width: 2560px) { 
+  html { zoom: 1.7; } 
+}
 
 @media (min-width: 3860px) { 
   html { zoom: 2.5; } 
@@ -56,7 +56,6 @@ body {
    overflow-x: hidden;
 }
 
-/* LAYOUT */
 .container {
   max-width: 124rem;
   padding: 0 1rem;
@@ -84,14 +83,15 @@ body {
   } 
 }
 
-/* SWIPER WRAPPER AREA */
 #tranding .tranding-slider {
   height: 52rem;
   padding: 2rem 0;
   position: relative;
 }
 @media (max-width:500px) {
-  #tranding .tranding-slider { height: 45rem; }
+  #tranding .tranding-slider { 
+    height: 45rem; 
+  }
 }
 
 .swiper-slide {
@@ -161,7 +161,9 @@ body {
   color: #222224;
 }
 
-.tranding-slider-control .slider-arrow::after { content: ''; }
+.tranding-slider-control .slider-arrow::after { 
+  content: ''; 
+}
 
 .tranding-slider-control .swiper-pagination {
   position: relative;
