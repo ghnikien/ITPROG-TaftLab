@@ -21,7 +21,7 @@
         <ul> 
           <li><a href="#">History</a></li>
           <li><a href="#">Profile</a></li>
-          <li><a href="#">Logout</a></li>
+          <li><a href="login.php">Logout</a></li>
         </ul>
       </nav>
       <div class="profile-icon">

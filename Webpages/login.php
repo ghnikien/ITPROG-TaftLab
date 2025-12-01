@@ -1,15 +1,45 @@
 <?php
+    include "db.php"; 
+
     $error = '';
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $username = $_POST['username'] ?? '';
+        $username = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
 
         if ($username === "taftlab_admin@dlsu.edu.ph" && $password === "admin123") {
-            header("Location: createAccount.php");
-            exit();
+            header("Location: admin-homepage.php");
+            exit(); 
         } else {
             $error = "Invalid username or password";
         }
+        
+        $sql_email = "SELECT * FROM user WHERE email = ?";
+        $stmt = $conn->prepare($sql_email);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        
+        if($result->num_rows === 1) //check if email address exists
+        {
+            $user = $result->fetch_assoc(); //fetch_assoc gets actual row data related to the user with the specified email
+
+            if($password === $user['user_password']) //if password is the same as the value of the user's password record
+            {
+                header("Location: homepage.php");
+                exit();
+            }
+            else
+            {
+                $error = "Invalid password";
+            }
+        }
+        else
+        {
+            $error = "Email not found.";
+        }
+
+
     }
 ?>
 
@@ -27,9 +57,9 @@
         <div class="login-leftside">
             <img src="images/taftlab-logo.png" alt="TAFT LAB Logo" class="login-logo">
 
-            <form method="POST" action="login.php">
-                <label for="username">Email Address</label>
-                <input type="text" id="username" name="username" placeholder="Enter your DLSU email here" required>
+            <form method="POST" action="login.php"> 
+                <label for="email">Email Address</label>
+                <input type="text" id="email" name="email" placeholder="Enter your DLSU email here" required>
                 
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password here" required>
