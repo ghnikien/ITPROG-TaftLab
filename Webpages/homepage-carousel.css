@@ -42,8 +42,13 @@ html {
   background: #797979;
   transition: 0.5s;
 }
-::-webkit-scrollbar-thumb:hover { background: #222224; }
-::-webkit-scrollbar-track { background: #f9f9f9; }
+::-webkit-scrollbar-thumb:hover { 
+  background: #222224; 
+}
+
+::-webkit-scrollbar-track { 
+  background: #f9f9f9; 
+}
 
 body {
   font-size: 1.6rem;
@@ -57,7 +62,9 @@ body {
   margin: 0 auto;
 }
 
-.text-center { text-align: center; }
+.text-center { 
+  text-align: center; 
+}
 
 .section-heading {
   font-size: 3rem;
@@ -65,8 +72,16 @@ body {
   padding: 2rem 0;
 }
 
-#tranding { padding: 4rem 0; }
-@media (max-width:1440px) { #tranding { padding: 7rem 0; } }
+/* SECTION */
+#tranding { 
+  padding: 4rem 0; 
+}
+
+@media (max-width:1440px) { 
+  #tranding { 
+    padding: 7rem 0; 
+  } 
+}
 
 #tranding .tranding-slider {
   height: 52rem;
@@ -79,14 +94,12 @@ body {
   }
 }
 
-/* SWIPER SLIDES */
 .swiper-slide {
   width: 29rem !important;  
   display: flex;
   justify-content: center;
 }
 
-/* NAVIGATION + PAGINATION */
 .swiper-slide-shadow-left,
 .swiper-slide-shadow-right { 
   display: none; 
@@ -229,6 +242,7 @@ body {
   overflow-x: visible;  
 }
 
+
 header {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     display: flex;
@@ -252,8 +266,8 @@ header {
     font-weight: 700;
     text-align: center;
     margin-bottom: 20px;
-
 }
+
 .logo img {
     height: 60px;
 }
