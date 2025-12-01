@@ -53,7 +53,7 @@
     <img src="images/Y_602_indoor_1.jpg" alt="Lab Picture" class="box-img">
     <div class="box-text">
         <h3> Generate Report Summary </h3>
-        <p> Create and modify classroom schedules, assign time slots, and mark rooms as unavailable when needed. </p>
+        <p> Generate summary reports for reserved schedules of users for the given day, month, and year, as well as the building. </p>
         <a href="#" class="admin-btn">Generate Reports</a>
     </div>
   </div>
