@@ -28,7 +28,7 @@ CREATE TABLE building(
 CREATE TABLE laboratory(
     lab_id INT AUTO_INCREMENT PRIMARY KEY,
     building_id INT NOT NULL,
-    room_code INT NOT NULL,
+    room_code VARCHAR(10) NOT NULL,
     capacity INT NOT NULL, 
     status ENUM('Active', 'Maintenance', 'Closed') NOT NULL,
     FOREIGN KEY (building_id) REFERENCES building(building_id) ON DELETE RESTRICT ON UPDATE CASCADE,
