@@ -36,7 +36,7 @@
     <div class="box-text">
         <h3> Room Management </h3>
         <p> Add, edit, or remove classrooms and manage their details to keep information up to date. </p>
-        <a href="roomManagement-main.php" class="admin-btn">Manage Rooms</a>
+        <a href="roomManagement.php" class="admin-btn">Manage Rooms</a>
     </div>
   </div>
 

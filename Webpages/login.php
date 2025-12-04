@@ -38,8 +38,6 @@
         {
             $error = "Email not found.";
         }
-
-
     }
 ?>
 

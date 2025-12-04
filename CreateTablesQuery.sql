@@ -83,4 +83,5 @@ INSERT INTO building (building_id, building_code, building_name)
     
 INSERT INTO building (building_id, building_code, building_name)
 	VALUES(105, 'Y', 'Don Enrique Yuchengco Hall');
-
+    
+    
