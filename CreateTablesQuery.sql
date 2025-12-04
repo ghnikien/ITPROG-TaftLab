@@ -67,3 +67,20 @@ CREATE TABLE reservation (
     FOREIGN KEY (class_id) REFERENCES existing_class(class_id) ON DELETE CASCADE ON UPDATE CASCADE, #schedules are removed if class is deleted
     UNIQUE(class_id, class_day, start_time, end_time)
  );
+
+
+ INSERT INTO building (building_id, building_code, building_name)
+	VALUES(101, 'GK', 'Gokongwei Hall');
+    
+INSERT INTO building (building_id, building_code, building_name)
+	VALUES(102, 'LS', 'St. La Salle Hall');
+    
+INSERT INTO building (building_id, building_code, building_name)
+	VALUES(103, 'AG', 'Br. Andrew Gonzales Hall');
+    
+INSERT INTO building (building_id, building_code, building_name)
+	VALUES(104, 'V', 'Velasco Hall');
+    
+INSERT INTO building (building_id, building_code, building_name)
+	VALUES(105, 'Y', 'Don Enrique Yuchengco Hall');
+
