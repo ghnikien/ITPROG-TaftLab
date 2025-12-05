@@ -118,10 +118,7 @@
     <div class="form-group">
       <label for="status">Status:</label>
       <select name="status" required>
-          <option value ="">-- Select Status --</option>
           <option value ="active">Active</option>
-          <option value ="maintenance">Maintenance</option>
-          <option value ="closed">Closed</option>
       </select>
     </div>
 
