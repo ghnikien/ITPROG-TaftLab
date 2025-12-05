@@ -67,12 +67,21 @@
                   exit();
               }
 
+          // Prevent closing if there are reservations
+          if ($status === "Closed" && labHasReservations($conn, $labID)) 
+          {
+            header("Location: {$pageRequester}?type=$b_code&message=has_reservations&room_code=$full_roomcode");
+            exit();
+          }
+
             $updateLab = "UPDATE laboratory SET room_code = '$full_roomcode',
                                               capacity  = '$capacity',
                                               status    = '$status'
                         WHERE lab_id = $labID";
 
             mysqli_query($conn, $updateLab);
+
+            
             
             if($status === "Closed" && !labHasReservations($conn, $labID))
             {
