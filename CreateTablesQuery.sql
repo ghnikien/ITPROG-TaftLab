@@ -46,7 +46,7 @@ CREATE TABLE reservation (
     status ENUM ('Active', 'Cancelled', 'Completed') NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE RESTRICT ON UPDATE CASCADE, 
     FOREIGN KEY (lab_id) REFERENCES laboratory(lab_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    UNIQUE(lab_id, date_reserved, reserve_startTime, reserve_endTime)
+    UNIQUE(user_id, lab_id, date_reserved, reserve_startTime, reserve_endTime)
  );
  
  CREATE TABLE existing_class(

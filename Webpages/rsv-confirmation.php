@@ -94,7 +94,7 @@ if (isset($_POST['submit_cred'])) {
         $error = "Email does not match the logged-in account.";
     } 
     
-    else if ($password !== $user['user_password']) {
+    else if (!password_verify($password, $user['user_password'])) {
         $error = "Incorrect password.";
     } 
     
