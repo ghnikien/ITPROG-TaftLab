@@ -128,8 +128,8 @@
     <div class="box-text">
       <div class="text-group">
         <h3>Don Enrique Yuchengco Hall</h3>
-         <p class="total-classroom">  <?php echo $rowY['room_list'] ? $rowY['room_list'] : "No rooms added yet"; ?> </p>
-         <p class="classroom-list"> <?php echo $rowY['total'] . " classrooms total"; ?> </p>
+         <p class="total-classroom"> <?php echo $rowY['total'] . " classrooms total"; ?> </p>
+         <p class="classroom-list">  <?php echo $rowY['room_list'] ? $rowY['room_list'] : "No rooms added yet"; ?> </p>
       </div>
         <a href="rm-management.php?type=Y" class="admin-btn">Select</a>
     </div>
