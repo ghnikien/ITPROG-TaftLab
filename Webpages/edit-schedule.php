@@ -2,38 +2,56 @@
 include "db.php";
 
 $building_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$selected_day = isset($_GET['day']) ? $_GET['day'] : "Monday"; // "Monday"
 
-// DAY SELECTION LOGIC 
-// If user selected a day, use it. Otherwise, default to "Monday".
-$selected_day = isset($_GET['day']) ? $_GET['day'] : "Monday";
-
-// Calculate the Date for the selected day (Upcoming)
-// This ensures we are editing a real date in the database
+// Calculate the specific DATE (2023-12-04)
 $target_date = date('Y-m-d', strtotime("next $selected_day"));
+// Calculate the 3-letter DAY code for the database ("Mon")
+$db_day_enum = date('D', strtotime("next $selected_day"));
 
-// Fetch Building Name
+// 1. Fetch Building Name
 $sql_building = "SELECT building_name FROM building WHERE building_id = $building_id";
 $result_building = $conn->query($sql_building);
 $building_name = ($result_building->num_rows > 0) ? $result_building->fetch_assoc()['building_name'] : "Unknown Building";
 
-// Fetch Rooms AND Capacity
+// 2. Fetch Rooms & Capacity
 $sql_rooms = "SELECT room_code, capacity FROM laboratory WHERE building_id = $building_id ORDER BY room_code";
 $result_rooms = $conn->query($sql_rooms);
 
-// Fetch Existing Reservations for the TARGET DATE
+// 3. FETCH DATA (The Merge Logic)
 $booked_slots = [];
-$sql_reservations = "SELECT l.room_code, r.reserve_startTime, r.status, r.subject 
-                     FROM reservation r 
-                     JOIN laboratory l ON r.lab_id = l.lab_id 
-                     WHERE l.building_id = $building_id 
-                     AND r.date_reserved = '$target_date'";
-$result_res = $conn->query($sql_reservations);
 
-if ($result_res) {
-    while($row = $result_res->fetch_assoc()) {
-        $booked_slots[$row['room_code']][$row['reserve_startTime']] = [
-            'status' => $row['status'],
-            'subject' => $row['subject']
+// A. Check RESERVATIONS (For "Unavailable" / Red status)
+$sql_res = "SELECT l.room_code, r.reserve_startTime, r.status 
+            FROM reservation r 
+            JOIN laboratory l ON r.lab_id = l.lab_id 
+            WHERE l.building_id = $building_id 
+            AND r.date_reserved = '$target_date'";
+$res_query = $conn->query($sql_res);
+while($row = $res_query->fetch_assoc()) {
+    $booked_slots[$row['room_code']][$row['reserve_startTime']] = [
+        'type' => 'reservation',
+        'status' => $row['status'], 
+        'subject' => ''
+    ];
+}
+
+// B. Check CLASSES (For "Class Ongoing" / Orange status)
+// We join existing_class and class_schedule
+$sql_class = "SELECT l.room_code, ec.course_code, cs.start_time 
+              FROM class_schedule cs
+              JOIN existing_class ec ON cs.class_id = ec.class_id
+              JOIN laboratory l ON ec.lab_id = l.lab_id
+              WHERE l.building_id = $building_id
+              AND cs.class_day = '$db_day_enum'";
+$class_query = $conn->query($sql_class);
+while($row = $class_query->fetch_assoc()) {
+    // Reservations (Red) usually override Classes (Orange) if they conflict, 
+    if (!isset($booked_slots[$row['room_code']][$row['start_time']])) {
+        $booked_slots[$row['room_code']][$row['start_time']] = [
+            'type' => 'class',
+            'status' => 'Class Ongoing',
+            'subject' => $row['course_code']
         ];
     }
 }
@@ -59,31 +77,24 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
     <style>
         .edit-container { max-width: 1400px; margin: 40px auto; padding: 20px; } 
         .building-title { font-size: 2rem; font-weight: 800; margin-bottom: 20px; }
-        
-        /* Day Selector */
         .day-selector { margin-bottom: 20px; }
         .day-selector select { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; font-weight: bold; }
         
-        /* Table Styles */
         .schedule-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
         .schedule-table th, .schedule-table td { border: 1px solid #ccc; padding: 5px; text-align: center; font-size: 11px; height: 50px; }
         .schedule-table th { background-color: #f2f2f2; font-weight: 700; }
         .schedule-table td:first-child { font-weight: 800; background-color: #eee; width: 60px; font-size: 13px; }
 
-        /* Dynamic Status Colors & Text */
         .status-available { background-color: #28a745; color: white; cursor: pointer; } 
         .status-ongoing { background-color: #fd7e14; color: white; cursor: pointer; } 
         .status-unavailable { background-color: #dc3545; color: white; cursor: pointer; } 
 
-        /* EDIT FORM */
         #editFormSection { display: none; border: 2px solid #006937; padding: 30px; border-radius: 10px; text-align: center; max-width: 500px; margin: 0 auto; background: white; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
         .form-group select, .form-group input { width: 100%; padding: 10px; font-size: 14px; border-radius: 5px; border: 1px solid #ccc; }
-        
         .btn-confirm { background-color: #006937; color: white; padding: 10px 30px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .btn-cancel { background-color: #888; color: white; padding: 10px 30px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        
         #subjectGroup { display: none; } 
     </style>
 </head>
@@ -133,22 +144,22 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
                             foreach($time_slots as $slot) {
                                 $start = $slot[0]; $end = $slot[1];
                                 
-                                // Default State: Available
+                                // Default: Available
                                 $status = "Available";
                                 $subject = "";
                                 $displayText = "0 / " . $capacity; 
                                 $class = "status-available";
 
-                                // Check DB
+                                // Check merged array
                                 if (isset($booked_slots[$room][$start])) {
-                                    $status = $booked_slots[$room][$start]['status'];
-                                    $subject = $booked_slots[$room][$start]['subject'];
+                                    $data = $booked_slots[$room][$start];
+                                    $status = $data['status'];
+                                    $subject = $data['subject'];
                                 }
 
-                                // Apply Logic based on Status
                                 if ($status == "Unavailable") {
                                     $class = "status-unavailable";
-                                    $displayText = $capacity . " / " . $capacity; // Max Capacity
+                                    $displayText = $capacity . " / " . $capacity; 
                                 } elseif ($status == "Class Ongoing") {
                                     $class = "status-ongoing";
                                     $displayText = "Class Ongoing<br>(" . $subject . ")";
@@ -209,18 +220,15 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
                 <button class="btn-cancel" onclick="closeEditForm()">Cancel</button>
             </div>
         </div>
-
     </div>
 
     <script>
-    // Global State
     let selectedRoom = "";
     let selectedStart = "";
     let selectedEnd = "";
-    let targetDate = "<?php echo $target_date; ?>"; // Pass PHP date to JS
+    let targetDate = "<?php echo $target_date; ?>";
 
     function changeDay(day) {
-        // Reload page with new day parameter
         window.location.href = "edit-schedule.php?id=<?php echo $building_id; ?>&day=" + day;
     }
 
@@ -229,18 +237,15 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
         selectedStart = start;
         selectedEnd = end;
 
-        // Populate Form
         document.getElementById('editRoom').value = room + " (Max: " + capacity + ")";
         document.getElementById('editTime').value = start.substring(0,5) + " - " + end.substring(0,5);
         document.getElementById('editStatus').value = currentStatus;
         
-        // Handle Subject Field
         if (currentSubject) {
             document.getElementById('editSubject').value = currentSubject;
         }
-        toggleSubjectField(); // Show/Hide subject based on status
+        toggleSubjectField();
 
-        // Switch Views
         document.getElementById('tableView').style.display = 'none';
         document.getElementById('editFormSection').style.display = 'block';
     }
@@ -253,7 +258,6 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
     function toggleSubjectField() {
         let status = document.getElementById('editStatus').value;
         let subjectGroup = document.getElementById('subjectGroup');
-        
         if (status === "Class Ongoing") {
             subjectGroup.style.display = "block";
         } else {
@@ -265,10 +269,7 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
         let newStatus = document.getElementById('editStatus').value;
         let newSubject = document.getElementById('editSubject').value;
 
-        // If status is not "Class Ongoing", clear the subject so we don't save it
-        if (newStatus !== "Class Ongoing") {
-            newSubject = "";
-        }
+        if (newStatus !== "Class Ongoing") newSubject = "";
 
         fetch('save-schedule.php', {
             method: 'POST',
