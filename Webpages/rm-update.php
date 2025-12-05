@@ -8,7 +8,7 @@
         exit();
     }
 
-    function labHasReservations($conn) {
+    function labHasReservations($conn, $lab_id) {
       $sql = "
           SELECT *
           FROM reservation
@@ -51,15 +51,30 @@
 
         if(!$hasError)
         {           
-          $full_roomcode =$b_code . $room_no;
-          $updateLab = "UPDATE laboratory SET room_code = '$full_roomcode',
+           $full_roomcode =$b_code . $room_no;
+
+            // Check if room already exists in this building
+              $checkRoom = "SELECT COUNT(*) AS c FROM laboratory WHERE room_code = ?";
+              $stmt = $conn->prepare($checkRoom);
+              $stmt->bind_param("s", $full_roomcode);
+              $stmt->execute();
+              $result = $stmt->get_result();
+              $count = $result->fetch_assoc()['c'];
+              $stmt->close();
+
+              if ($count > 0) {
+                  header("Location: rm-management.php?type=$b_code&message=exists&room_code=$full_roomcode");
+                  exit();
+              }
+
+            $updateLab = "UPDATE laboratory SET room_code = '$full_roomcode',
                                               capacity  = '$capacity',
                                               status    = '$status'
                         WHERE lab_id = $labID";
 
             mysqli_query($conn, $updateLab);
             
-            if($status === "Closed" && !labHasReservations($conn))
+            if($status === "Closed" && !labHasReservations($conn, $labID))
             {
               // Prevent duplicates
               $delete = $conn->prepare("DELETE FROM restricted_slots WHERE lab_id = ?");

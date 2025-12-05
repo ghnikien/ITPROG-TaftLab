@@ -126,6 +126,11 @@
       $roomcode = $_GET['room_code'];
       echo "<p class='success'>$roomcode has been added Successfully!</p>";
     }
+    elseif(isset($_GET['message']) && $_GET['message'] == 'exists' && isset($_GET['room_code']))
+    {
+      $roomcode = $_GET['room_code'];
+      echo "<p class='deleted'>Lab with the same room code already exist!</p>";
+    }
     elseif(isset($_GET['message']) && $_GET['message'] == 'updated' && isset($_GET['room_code']))
     {
       $roomcode = $_GET['room_code'];

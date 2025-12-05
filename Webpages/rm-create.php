@@ -39,6 +39,7 @@
 
           if(!$hasError)
           {
+
               $full_roomcode = $b_code . $room_no;
 
              //get id of building dynamically using building code
@@ -47,6 +48,20 @@
               $result = $conn->query($getBuilding);
               $row = $result->fetch_assoc();
               $buildingID = $row['building_id'];
+
+              // Check if room already exists in this building
+              $checkRoom = "SELECT COUNT(*) AS c FROM laboratory WHERE building_id = ? AND room_code = ?";
+              $stmt = $conn->prepare($checkRoom);
+              $stmt->bind_param("is", $buildingID, $full_roomcode);
+              $stmt->execute();
+              $result = $stmt->get_result();
+              $count = $result->fetch_assoc()['c'];
+              $stmt->close();
+
+              if ($count > 0) {
+                  header("Location: rm-management.php?type=$b_code&message=exists&room_code=$full_roomcode");
+                  exit();
+              }
               
               //insert to laboratory table using that 
               $insertLab = "INSERT INTO laboratory(building_id, room_code, capacity, status)
