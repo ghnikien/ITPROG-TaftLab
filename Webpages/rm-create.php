@@ -1,5 +1,11 @@
 <?php
     include "db.php";
+    session_start();
+    if (!isset($_SESSION['user_id'])) 
+    {
+        header("Location: login.php");
+        exit();
+    }
 
     if($_SERVER["REQUEST_METHOD"] == "GET")
     {
@@ -76,8 +82,8 @@
     <div class="header-right">
       <nav>
         <ul> 
-          <li><a href="#">Profile</a></li>
-          <li><a href="login.php">Logout</a></li>
+          <li><a href="admin-profile">Profile</a></li>
+          <li><a href="logout.php">Logout</a></li>
         </ul>
       </nav>
       <div class="profile-icon">

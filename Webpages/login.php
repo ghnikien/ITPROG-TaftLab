@@ -1,46 +1,53 @@
 <?php
-    include "db.php"; 
+session_start();
+include "db.php"; 
 
-    $error = '';
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $username = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
+$error = '';
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-        if ($username === "taftlab_admin@dlsu.edu.ph" && $password === "admin123") {
-            header("Location: admin-homepage.php");
-            exit(); 
-        } else {
-            $error = "Invalid username or password";
+    // Check admin credentials first
+    if ($username === "taftlab_admin@dlsu.edu.ph" && $password === "admin123") {
+        $_SESSION['user_id'] = 0; // Admin ID
+        $_SESSION['email'] = $username;
+        $_SESSION['is_admin'] = true;
+        header("Location: admin-homepage.php");
+        exit(); 
+    }
+    
+    // Check regular user credentials
+    $sql_email = "SELECT * FROM user WHERE email = ?";
+    $stmt = $conn->prepare($sql_email);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+
+        if($password === $user['user_password']) {
+            // Store user info in session
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['first_name'] = $user['first_name'] ?? '';
+            $_SESSION['last_name'] = $user['last_name'] ?? '';
+            $_SESSION['is_admin'] = false;
+            
+            header("Location: homepage.php");
+            exit();
         }
-        
-        $sql_email = "SELECT * FROM user WHERE email = ?";
-        $stmt = $conn->prepare($sql_email);
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        
-        if($result->num_rows === 1) //check if email address exists
-        {
-            $user = $result->fetch_assoc(); //fetch_assoc gets actual row data related to the user with the specified email
-
-            if($password === $user['user_password']) //if password is the same as the value of the user's password record
-            {
-                header("Location: homepage.php");
-                exit();
-            }
-            else
-            {
-                $error = "Invalid password";
-            }
-        }
-        else
-        {
-            $error = "Email not found.";
+        else {
+            $error = "Invalid password";
         }
     }
+    else {
+        $error = "Email not found.";
+    }
+}
 ?>
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -54,6 +61,10 @@
 
         <div class="login-leftside">
             <img src="images/taftlab-logo.png" alt="TAFT LAB Logo" class="login-logo">
+
+            <?php if (!empty($error)): ?>
+                <p style="color: red; margin-bottom: 15px;"><?php echo htmlspecialchars($error); ?></p>
+            <?php endif; ?>
 
             <form method="POST" action="login.php"> 
                 <label for="email">Email Address</label>
