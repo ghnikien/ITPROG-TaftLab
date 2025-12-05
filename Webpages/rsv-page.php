@@ -51,7 +51,7 @@ $slots = [
 ];
 
 // obtain today's date and weekday
-date_default_timezone_set('Asia/Manila');
+date_default_timezone_set('America/Chicago');
 $today_date = date('Y-m-d');
 
 // check if today is Sunday and if yes, block reservation access and redirect
@@ -87,8 +87,8 @@ function getReservationCount($conn, $lab_id, $date, $start, $end) {
         AND date_reserved = ?
         AND reserve_startTime = ?
         AND reserve_endTime = ?
-        AND status = 'Active'
-    ";
+        AND status IN ('Active', 'Completed')
+    "; // counts only active and completed reservations since cancelled ones free up slots
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("isss", $lab_id, $date, $start, $end);
     $stmt->execute();

@@ -226,6 +226,7 @@ nav ul li a:hover {
     margin-top: 0;
     font-size: 20px;
     font-weight: 700;
+    margin-bottom: 14px;
     text-align: center;
     color: #006937;
 }
@@ -246,28 +247,39 @@ nav ul li a:hover {
     margin-bottom: 25px;
 }
 
-/* Modal Buttons */
-.modal-buttons {
+.modal-actions {
+    width: 100%;
+    display: flex;
+    justify-content: center; /* centers the inner container */
+    margin-top: 40px;
+}
+
+.modal-actions-inner {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    align-items: center;
+    gap: 40px;              /* spacing between buttons */
+    width: 300px;           /* FIXED WIDTH to prevent spreading */
 }
 
-.modal-buttons button {
-    padding: 10px 22px;
-    border-radius: 18px;
-    font-size: 15px;
-    cursor: pointer;
-    border: none;
-    font-weight: 600;
-}
-
-.modal-buttons .btn-close {
-    background: #777;
-    color: white;
-}
-
-.modal-buttons .btn-submit {
+.modal-btn {
     background: #006937;
     color: white;
+    border: none;
+    padding: 12px 36px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+
+.modal-btn:hover {
+    opacity: 0.9;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #006937;
 }

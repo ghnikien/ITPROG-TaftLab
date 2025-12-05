@@ -1,13 +1,11 @@
 <?php
-    $connection = mysqli_connect("localhost:3307", "root", "") or die("Connection failed: " . mysqli_connect_error());
-    $use = mysqli_select_db($connection, "dbreservationmp");
+    include "db.php"; 
 
     $hasError = false;
+    $errorMessage = '';
 
     if($_SERVER["REQUEST_METHOD"] == "POST")
     {
-        // avoid undefined index warnings such as in the middle name
-        // ?? is used to set a default value if the index is not set
         $first_name   = $_POST['first_name']   ?? '';
         $middle_name  = $_POST['middle_name']  ?? ''; 
         $last_name    = $_POST['last_name']    ?? '';
@@ -16,32 +14,79 @@
         $student_type = $_POST['student_type'] ?? '';
         $department   = $_POST['department']   ?? '';
 
-        if(!empty($first_name) && !empty($last_name))
-            $fullName = $last_name . ", " . $first_name . " " . $middle_name;
-        else
-            $hasError = true;
+        // Only validate if form was actually submitted
+        if(!empty($_POST)) {
+            // Validate first name and last name
+            if(empty($first_name) || empty($last_name)) {
+                $hasError = true;
+                $errorMessage = "First name and last name are required.";
+            }
+            
+            // Validate email, password, student type, and department
+            if(empty($email) || empty($password) || empty($student_type) || empty($department)) {
+                $hasError = true;
+                $errorMessage = "All fields are required.";
+            }
 
-        if(empty($email) || empty($password) || empty($student_type) || empty($department))
-            $hasError = true;
+            if(!$hasError)
+            {
+                // Check if email already exists
+                $checkEmail = "SELECT email FROM user WHERE email = ?";
+                $stmtCheck = $conn->prepare($checkEmail);
+                $stmtCheck->bind_param("s", $email);
+                $stmtCheck->execute();
+                $resultCheck = $stmtCheck->get_result();
+                
+                if($resultCheck->num_rows > 0) {
+                    $hasError = true;
+                    $errorMessage = "Email already registered.";
+                } else {
+                    // Create full name
+                    $fullName = $last_name . ", " . $first_name;
+                    if(!empty($middle_name)) {
+                        $fullName .= " " . $middle_name;
+                    }
 
-        if(!$hasError)
-        {
-            $insertUser = "INSERT INTO user (user_type, email, user_password, full_name) 
-                           VALUES ('Student', '$email', '$password', '$fullName')";
+                    // Hash password
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                    $user_type = 'Student'; // Set BEFORE binding
 
+                    // Insert into user table
+                    $insertUser = "INSERT INTO user (user_type, email, user_password, full_name) 
+                                   VALUES (?, ?, ?, ?)";
+                    
+                    $stmt = $conn->prepare($insertUser);
+                    $stmt->bind_param("ssss", $user_type, $email, $hashed_password, $fullName);
+                    
+                    if($stmt->execute()) {
+                        $user_id = $stmt->insert_id;
 
-            mysqli_query($connection, $insertUser);
-            $user_id = mysqli_insert_id($connection); // gets last inserted ID
+                        // Insert into student table
+                        $insertStudent = "INSERT INTO student (user_id, student_type, department)
+                                          VALUES (?, ?, ?)";
 
-            $insertStudent = "INSERT INTO student (user_id, student_type, department)
-                              VALUES ('$user_id', '$student_type', '$department')";
-            mysqli_query($connection, $insertStudent);
-            header("Location:login.php");
-            exit();            
+                        $stmt2 = $conn->prepare($insertStudent);
+                        $stmt2->bind_param("iss", $user_id, $student_type, $department);
+                        
+                        if($stmt2->execute()) {
+                            // Redirect on success
+                            header("Location: login.php");
+                            exit();
+                        } else {
+                            $hasError = true;
+                            $errorMessage = "Error creating student record: " . $stmt2->error;
+                        }
+                        $stmt2->close();
+                    } else {
+                        $hasError = true;
+                        $errorMessage = "Error creating account: " . $stmt->error;
+                    }
+                    $stmt->close();
+                }
+                $stmtCheck->close();
+            }
         }
     }
-
-    mysqli_close($connection);
 ?>
 
 <!DOCTYPE html>
@@ -57,7 +102,13 @@
         <div class="signup-leftside">
             <h2>Sign Up to TaftLab</h2>
 
-            <form method="POST" action= "createAccount.php">
+            <?php if($hasError && $_SERVER["REQUEST_METHOD"] == "POST"): ?>
+                <div style="color: red; margin-bottom: 15px; padding: 10px; background-color: #ffe6e6; border-radius: 5px;">
+                    <p><?= htmlspecialchars($errorMessage); ?></p>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="createAccount.php">
                 <label for="first_name">First Name</label>
                 <input type="text" id="first_name" name="first_name" required>
 
