@@ -1,0 +1,51 @@
+<!ELEMENT reservationSummary (filters, reservations)>
+<!ATTLIST reservationSummary
+          generatedAt CDATA #REQUIRED
+          timeScope (ALL|DAY|WEEK|MONTH|YEAR) #REQUIRED>
+
+<!ELEMENT filters (dateRange, buildingFilter)>
+
+<!ELEMENT dateRange EMPTY>
+<!ATTLIST dateRange
+          from CDATA #IMPLIED
+          to   CDATA #IMPLIED>
+
+<!ELEMENT buildingFilter EMPTY>
+<!ATTLIST buildingFilter
+          scope        (ALL|SPECIFIC) #REQUIRED
+          buildingId   CDATA #IMPLIED
+          buildingCode CDATA #IMPLIED
+          buildingName CDATA #IMPLIED>
+
+<!ELEMENT reservations (reservation*)>
+
+<!ELEMENT reservation (user, lab)>
+<!ATTLIST reservation
+          id            CDATA #REQUIRED
+          dateReserved  CDATA #REQUIRED
+          startTime     CDATA #REQUIRED
+          endTime       CDATA #REQUIRED
+          status        (Active|Cancelled|Completed) #REQUIRED>
+
+<!ELEMENT user EMPTY>
+<!ATTLIST user
+          id       CDATA #REQUIRED
+          fullName CDATA #REQUIRED
+          userType (Student|Admin) #REQUIRED>
+
+<!ELEMENT lab EMPTY>
+<!ATTLIST lab
+          id           CDATA #REQUIRED
+          roomCode     CDATA #REQUIRED
+          buildingId   CDATA #REQUIRED
+          buildingCode CDATA #REQUIRED
+          buildingName CDATA #REQUIRED>
+
+<!ELEMENT summary (totalReservations, reservationsPerBuilding)>
+<!ELEMENT totalReservations (#PCDATA)>
+<!ELEMENT reservationsPerBuilding (building*)>
+
+<!ELEMENT building EMPTY>
+<!ATTLIST building
+	code CDATA #REQUIRED
+	count CDATA #REQUIRED>
