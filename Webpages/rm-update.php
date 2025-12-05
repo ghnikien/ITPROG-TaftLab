@@ -19,38 +19,26 @@
     if($_SERVER["REQUEST_METHOD"] == "POST")
     {
         $labID = $_POST['lab_id'];
-        $room_code = $_POST['room_code'] ?? '';
+        $b_code = $_POST['b_code'] ?? '';
+        $room_no = $_POST['room_no'];
         $capacity = $_POST['capacity'] ?? '';
         $status = $_POST['status'] ?? '';
         $pageRequester = $_POST['pageRequester'] ?? 'rm-management.php';
 
-        if(empty($room_code) || empty($capacity) || empty($status))
+        if(empty($b_code) || empty($room_no) || empty($capacity) || empty($status))
             $hasError = true;
 
 
         if(!$hasError)
         {           
-            //get first the building to be sent in the url for reference
-            $sqlLab = "SELECT building_id FROM laboratory WHERE lab_id = '$labID'";
-            $result = $conn->query($sqlLab);
-            $bdrow = $result->fetch_assoc();
-            $buildingID = $bdrow['building_id'];
-            
-            $sqlBD = "SELECT building_code FROM building b 
-                        JOIN laboratory l ON b.building_id = l.building_id 
-                        WHERE lab_id = '$labID'";
-            $result = $conn->query($sqlBD);
-            $bcrow = $result->fetch_assoc();
-            $buildingCode = $bcrow['building_code'];
-
-            //proceed with update
-            $updateLab = "UPDATE laboratory SET room_code = '$room_code',
+          $full_roomcode =$b_code . $room_no;
+            $updateLab = "UPDATE laboratory SET room_code = '$full_roomcode',
                                                 capacity  = '$capacity',
                                                 status    = '$status'
                           WHERE lab_id = $labID";
 
             mysqli_query($conn, $updateLab);
-            header("Location: {$pageRequester}?type=$buildingCode&message=updated&room_code=$room_code");
+            header("Location: {$pageRequester}?type=$b_code&message=updated&room_code=$full_roomcode");
             $hasError = false;
             exit();
         }
@@ -99,15 +87,19 @@
     <input type="hidden" name="pageRequester" value="<?php echo $pageRequester; ?>">
     <input type="hidden" name="lab_id" value="<?php echo $row['lab_id'];?>">
     <div class="form-group">
-      <label for="room_code">Room Code:</label>
-      <input type="text" name="room_code" value = "<?php echo $row['room_code'];?>" required> <br>
+      <label for="b_code">Building Code:</label>
+      <input type="text" name="b_code" value = "<?php echo $bd['building_code'];?>" readonly> <br>
+    </div>
+
+     <div class="form-group">
+      <label for="room_no">Room Number:</label>
+      <input type="text" inputmode="numeric" name="room_no" value="<?php echo filter_var($row['room_code'], FILTER_SANITIZE_NUMBER_INT);?>" required> <br> <!--extract the number only -->
     </div>
 
     <div class="form-group">
       <label for="capacity">Max Capacity:</label>
       <input type="text" name="capacity" value = "<?php echo $row['capacity'];?>"> <br>
     </div>
-
 
     <div class="form-group">
       <label for="status">Status:</label>

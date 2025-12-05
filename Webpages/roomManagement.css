@@ -1,6 +1,6 @@
 .admin-subheader {
   background-color: #006937; 
-  height: 70px;             
+  height: 50px;             
   display: flex;
   flex-direction: column;
   align-items: flex-start;      
@@ -46,10 +46,16 @@ h3 {
 
 .box-text {
     display: flex;
-    flex-direction: column;   /* stack h3 and p vertically */
-    justify-content: flex-start; /* align text to top of container */
-    height: 80%;
+    flex-direction: row;  /* Put text on the left, button on the right */
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;          
     margin-left: 10px;
+}
+
+.text-group {
+    display: flex;
+    flex-direction: column;
 }
 
 p {
