@@ -4,7 +4,12 @@ include "db.php";
 $building_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $selected_day = isset($_GET['day']) ? $_GET['day'] : "Monday"; 
 
-$target_date = date('Y-m-d', strtotime("this week $selected_day"));
+$today = date('Y-m-d');
+$target_date = date('Y-m-d', strtotime("next $selected_day"));
+
+if (strtolower($selected_day) === strtolower(date('l')))
+    $target_date = $today; // if selected day is today, use today
+
 $db_day_enum = date('D', strtotime($target_date));
 
 // 1. Fetch Building & Rooms
@@ -19,9 +24,9 @@ $result_rooms = $conn->query($sql_rooms);
 $booked_slots = [];
 
 $time_slots = [
-    ["07:30", "09:00"], ["09:15", "10:45"], ["11:00", "12:30"],
-    ["12:45", "14:15:00"], ["14:30", "16:00"], ["16:15", "17:45"],
-    ["18:00", "19:30"], ["19:45", "21:15"]
+    ["07:30:00", "09:00:00"], ["09:15", "10:45:00"], ["11:00:00", "12:30:00"],
+    ["12:45:00", "14:15:00"], ["14:30:00", "16:00:00"], ["16:15:00", "17:45:00"],
+    ["18:00:00", "19:30:00"], ["19:45:00", "21:15:00"]
 ];
 
 // A. Check STUDENT RESERVATIONS (Green/Counts)
