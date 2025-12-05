@@ -80,8 +80,8 @@
     <div class="box-text">
       <div class="text-group">
         <h3>St. La Salle Hall</h3>
-        <p> <?php echo $rowLS['total'] . " classrooms total"; ?> </p>
-        <p> <?php echo $rowLS['room_list'] ? $rowLS['room_list'] : "No rooms added yet"; ?> </p>
+        <p class="total-classroom"> <?php echo $rowLS['total'] . " classrooms total"; ?> </p>
+        <p class="classroom-list"> <?php echo $rowLS['room_list'] ? $rowLS['room_list'] : "No rooms added yet"; ?> </p>
       </div>
         <a href="rm-management.php?type=LS" class="admin-btn">Select</a>
     </div>
@@ -92,8 +92,8 @@
     <div class="box-text">
       <div class="text-group">
         <h3>Gokongwei Hall</h3>
-        <p> <?php echo $rowGK['total'] . " classrooms total"; ?> </p>
-        <p> <?php echo $rowGK['room_list'] ? $rowGK['room_list'] : "No rooms added yet"; ?> </p>
+        <p class="total-classroom">  <?php echo $rowGK['total'] . " classrooms total"; ?> </p>
+        <p class="classroom-list"> <?php echo $rowGK['room_list'] ? $rowGK['room_list'] : "No rooms added yet"; ?> </p>
       </div>
         <a href="rm-management.php?type=GK" class="admin-btn">Select</a>
     </div>
@@ -104,8 +104,8 @@
     <div class="box-text">
       <div class="text-group">
         <h3>Br. Andrew Gonzales Hall</h3>
-         <p> <?php echo $rowA['total'] . " classrooms total"; ?> </p>
-         <p> <?php echo $rowA['room_list'] ? $rowA['room_list'] : "No rooms added yet"; ?> </p>
+         <p class="total-classroom">  <?php echo $rowA['total'] . " classrooms total"; ?> </p>
+         <p class="classroom-list"> <?php echo $rowA['room_list'] ? $rowA['room_list'] : "No rooms added yet"; ?> </p>
       </div>
         <a href="rm-management.php?type=AG" class="admin-btn">Select</a>
     </div>
@@ -116,8 +116,8 @@
     <div class="box-text">
       <div class="text-group">
         <h3>Velasco Hall</h3>
-         <p> <?php echo $rowV['total'] . " classrooms total"; ?> </p>
-         <p> <?php echo $rowV['room_list'] ? $rowV['room_list'] : "No rooms added yet"; ?> </p>
+         <p class="total-classroom">  <?php echo $rowV['total'] . " classrooms total"; ?> </p>
+         <p class="classroom-list"> <?php echo $rowV['room_list'] ? $rowV['room_list'] : "No rooms added yet"; ?> </p>
       </div>
         <a href="rm-management.php?type=V" class="admin-btn">Select</a>
     </div>
@@ -128,8 +128,8 @@
     <div class="box-text">
       <div class="text-group">
         <h3>Don Enrique Yuchengco Hall</h3>
-         <p> <?php echo $rowY['room_list'] ? $rowY['room_list'] : "No rooms added yet"; ?> </p>
-         <p> <?php echo $rowY['total'] . " classrooms total"; ?> </p>
+         <p class="total-classroom">  <?php echo $rowY['room_list'] ? $rowY['room_list'] : "No rooms added yet"; ?> </p>
+         <p class="classroom-list"> <?php echo $rowY['total'] . " classrooms total"; ?> </p>
       </div>
         <a href="rm-management.php?type=Y" class="admin-btn">Select</a>
     </div>
