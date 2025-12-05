@@ -135,6 +135,16 @@
     {
       echo "<p class='deleted'>Lab has been deleted!</p>";
     }
+    elseif(isset($_GET['message']) && $_GET['message'] == 'has_classes')
+    {
+      $roomcode = $_GET['room_code'];
+      echo "<p class='deleted'>Room $roomcode cannot be deleted. This lab has scheduled classes.</p>";
+    }
+    elseif(isset($_GET['message']) && $_GET['message'] == 'has_reservations')
+    {
+      $roomcode = $_GET['room_code'];
+      echo "<p class='deleted'>Room $roomcode cannot be deleted. There are ongoing reservations.</p>";
+    }
     else
     {
       //do nothing so does not show any message
