@@ -23,46 +23,36 @@
 
       if($_SERVER["REQUEST_METHOD"] == "POST")
       {
-        $room_code = $_POST['room_code'] ?? '';
+        $b_code = $_POST['b_code'] ?? '';
+        $room_no = $_POST['room_no'] ?? '';
         $capacity = $_POST['capacity'] ?? '';
         $status = $_POST['status'] ?? '';
 
-          if(empty($room_code) || empty($capacity) || empty($status))
+          if(empty($b_code) || empty($room_no) || empty($capacity) || empty($status))
               $hasError = true;
 
           if(!$hasError)
           {
-            //get building code
-             if(str_contains($room_code, "LS"))
-                $code = "LS";
-             elseif(str_contains($room_code, "GK"))
-                $code = "GK";
-             elseif(str_contains($room_code, "AG"))
-                $code = "AG";
-             elseif(str_contains($room_code, "Y"))
-                $code = "Y";
-              elseif(str_contains($room_code, "V"))
-                $code = "V";
+              $full_roomcode = $b_code . $room_no;
 
              //get id of building dynamically using building code
               $getBuilding = "SELECT b.building_id FROM building b
-                              WHERE b.building_code = '$code'";
+                              WHERE b.building_code = '$b_code'";
               $result = $conn->query($getBuilding);
               $row = $result->fetch_assoc();
               $buildingID = $row['building_id'];
               
               //insert to laboratory table using that 
               $insertLab = "INSERT INTO laboratory(building_id, room_code, capacity, status)
-                              VALUES ('$buildingID', '$room_code', '$capacity', '$status')";
+                              VALUES ('$buildingID', '$full_roomcode', '$capacity', '$status')";
 
               mysqli_query($conn, $insertLab);
 
 
-              header("Location:rm-management.php?type=$code&message=added&room_code=$room_code");
+              header("Location:rm-management.php?type=$b_code&message=added&room_code=$full_roomcode");
               $hasError = false;
               exit();
           }
-          mysqli_close($conn);
       }
       $conn->close();
   ?>
@@ -101,12 +91,17 @@
     <h2 class=>Room Management - Create Page</h2>
   </div>
 
-    <h2 class="cardHeader"><?php echo "Building: " . $row['building_name'] ?></h2>
+  <h2 class="cardHeader"><?php echo "Building: " . $row['building_name'] ?></h2>
 
   <form method="POST" action="rm-create.php">
     <div class="form-group">
-      <label for="room_code">Room Code:</label>
-      <input type="text" name="room_code" required> <br>
+      <label for="b_code">Building Code:</label>
+      <input type="text" name="b_code" value="<?php echo $code;?>" readonly> <br>
+    </div>
+
+     <div class="form-group">
+      <label for="room_no">Room Number:</label>
+      <input type="text" inputmode="numeric" name="room_no" required> <br>
     </div>
 
     <div class="form-group">

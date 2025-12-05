@@ -16,7 +16,6 @@
     <div class="header-right">
       <nav>
         <ul> 
-          <li><a href="#">History</a></li>
           <li><a href="#">Profile</a></li>
           <li><a href="login.php">Logout</a></li>
         </ul>
@@ -45,7 +44,7 @@
     <div class="box-text">
         <h3> Schedule Management </h3>
         <p> Create and modify classroom schedules, assign time slots, and mark rooms as unavailable when needed. </p>
-        <a href="#" class="admin-btn">Manage Schedules</a>
+        <a href="scheduleManagement.php" class="admin-btn">Manage Schedules</a>
     </div>
   </div>
 
