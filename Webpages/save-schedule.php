@@ -7,10 +7,11 @@ if ($data) {
     $room_code = $data['room_code'];
     $start_time = $data['start_time'];
     $end_time = $data['end_time'];
-    $status = $data['status']; // "Available", "Class Ongoing", or "Unavailable"
+    $status = $data['status']; 
+    $subject = isset($data['subject']) ? $data['subject'] : ""; // Get the subject
+    $selected_date = $data['date']; // Get the specific date selected
     
     $admin_user_id = 1; 
-    $date = date('Y-m-d'); 
 
     // Find lab_id
     $sql_lab = "SELECT lab_id FROM laboratory WHERE room_code = '$room_code'";
@@ -19,17 +20,18 @@ if ($data) {
     if($result_lab->num_rows > 0) {
         $lab_id = $result_lab->fetch_assoc()['lab_id'];
 
-        // 1. Always DELETE existing record for this slot first (to avoid duplicates/conflicts)
+        // 1. DELETE existing record for this slot/date
         $delete_sql = "DELETE FROM reservation 
                        WHERE lab_id = '$lab_id' 
-                       AND date_reserved = '$date' 
+                       AND date_reserved = '$selected_date' 
                        AND reserve_startTime = '$start_time'";
         $conn->query($delete_sql);
 
-        // 2. If status is NOT "Available", INSERT the new status
+        // 2. INSERT new record (if not "Available")
         if ($status !== "Available") {
-            $insert_sql = "INSERT INTO reservation (user_id, lab_id, date_reserved, reserve_startTime, reserve_endTime, status) 
-                           VALUES ('$admin_user_id', '$lab_id', '$date', '$start_time', '$end_time', '$status')";
+            // Include 'subject' in the INSERT
+            $insert_sql = "INSERT INTO reservation (user_id, lab_id, date_reserved, reserve_startTime, reserve_endTime, status, subject) 
+                           VALUES ('$admin_user_id', '$lab_id', '$selected_date', '$start_time', '$end_time', '$status', '$subject')";
             
             if ($conn->query($insert_sql) === TRUE) {
                 echo json_encode(["success" => true]);
@@ -37,7 +39,6 @@ if ($data) {
                 echo json_encode(["success" => false, "error" => $conn->error]);
             }
         } else {
-            // If status is "Available", we just deleted the record, so we are done.
             echo json_encode(["success" => true]);
         }
     } else {

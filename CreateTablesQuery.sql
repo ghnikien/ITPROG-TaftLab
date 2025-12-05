@@ -68,6 +68,15 @@ CREATE TABLE reservation (
     UNIQUE(class_id, class_day, start_time, end_time)
  );
 
+CREATE TABLE restricted_slots(
+    restricted_slot_id INT AUTO_INCREMENT PRIMARY KEY,
+    lab_id INT NOT NULL,
+    restricted_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    FOREIGN KEY (lab_id) REFERENCES laboratory(lab_id) ON DELETE CASCADE ON UPDATE CASCADE, #restricted slots are removed if lab is deleted
+    UNIQUE(lab_id, restricted_date, start_time, end_time)
+);
 
  INSERT INTO building (building_id, building_code, building_name)
 	VALUES(101, 'GK', 'Gokongwei Hall');
