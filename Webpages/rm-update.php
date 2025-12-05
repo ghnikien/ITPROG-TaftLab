@@ -54,9 +54,9 @@
            $full_roomcode =$b_code . $room_no;
 
             // Check if room already exists in this building
-              $checkRoom = "SELECT COUNT(*) AS c FROM laboratory WHERE room_code = ?";
+              $checkRoom = "SELECT COUNT(*) AS c FROM laboratory WHERE room_code = ? AND lab_id != ?";
               $stmt = $conn->prepare($checkRoom);
-              $stmt->bind_param("s", $full_roomcode);
+              $stmt->bind_param("si", $full_roomcode, $labID);
               $stmt->execute();
               $result = $stmt->get_result();
               $count = $result->fetch_assoc()['c'];
@@ -67,12 +67,21 @@
                   exit();
               }
 
+          // Prevent closing if there are reservations
+          if ($status === "Closed" && labHasReservations($conn, $labID)) 
+          {
+            header("Location: {$pageRequester}?type=$b_code&message=has_reservations&room_code=$full_roomcode");
+            exit();
+          }
+
             $updateLab = "UPDATE laboratory SET room_code = '$full_roomcode',
                                               capacity  = '$capacity',
                                               status    = '$status'
                         WHERE lab_id = $labID";
 
             mysqli_query($conn, $updateLab);
+
+            
             
             if($status === "Closed" && !labHasReservations($conn, $labID))
             {
