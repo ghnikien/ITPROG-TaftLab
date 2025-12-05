@@ -1,19 +1,33 @@
 <?php
     include "db.php";
     session_start();
-    if (!isset($_SESSION['user_id'])) 
-    {
+    
+    if (!isset($_SESSION['user_id'])) {
         header("Location: login.php");
         exit();
     }
 
     $id = $_SESSION['user_id'];
 
-    $sql = "SELECT * FROM user WHERE user_id = $id";
-    $result = $conn->query($sql);
+    // fetch admin details from both tables
+    $sql = "
+        SELECT u.user_id, u.email, u.full_name, a.job_position
+        FROM user u
+        LEFT JOIN admin a ON u.user_id = a.user_id
+        WHERE u.user_id = ?
+    ";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        die("Admin not found.");
+    }
+    
     $row = $result->fetch_assoc();
-
-    $conn->close();
+    $stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -40,17 +54,15 @@
     </div>
   </header>
 
-        
-    </header>
-
-    <div class="subheader"> </div>
+    <div class="subheader"></div>
 
     <div class="box"> 
-        <img src="images/profile-icon.png" alt="Lab Picture" class="box-img">
+        <img src="images/profile-icon.png" alt="Profile Picture" class="box-img">
         <div class="box-text">
             <div class="text-group">
-                <h3><?php echo $row['full_name'];?></h3>
-                <p class="email-text"> <?php echo $row['email']; ?></p>
+                <h3><?php echo htmlspecialchars($row['full_name']); ?></h3>
+                <p class="email-text"><?php echo htmlspecialchars($row['email']); ?></p>
+                <p class="job-text"><?php echo htmlspecialchars($row['job_position'] ?? 'Administrator'); ?></p>
             </div>
             <a href="logout.php" class="logout-btn">Logout</a>
         </div>
