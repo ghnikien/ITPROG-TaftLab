@@ -1,4 +1,4 @@
-.admin-subheader {
+.subheader {
   background-color: #006937; 
   height: 30px;             
   display: flex;
@@ -59,7 +59,7 @@ h3 {
 }
 
 
-.admin-btn {
+.logout-btn {
     margin-top: 15px;
     display: inline-block;      
     text-align: center;        
@@ -77,3 +77,42 @@ h3 {
     margin-right: 50px;
 }
 
+.lower-box {
+    width: 50%;
+    max-width: 1300px;
+    margin: 30px auto;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    background: none; /* remove old border */
+}
+
+.menu-card {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden; /* Keeps borders clean */
+}
+
+.menu-item {
+    padding: 18px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px solid #dcdcdc;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: black;
+}
+
+.menu-item:hover {
+    background: #f5f5f5;
+}
+
+.menu-item:last-child {
+    border-bottom: none;
+}
+
+.color{
+    color: black;
+}

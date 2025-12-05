@@ -31,7 +31,7 @@ $user_name = $_SESSION['first_name'] ?? 'User';
       <nav>
         <ul> 
           <li><a href="rsv-history.php">My Reservations</a></li>
-          <li><a href="#">Profile</a></li>
+          <li><a href="user-profile.php">Profile</a></li>
           <li><a href="logout.php">Logout</a></li>
         </ul>
       </nav>
@@ -150,13 +150,13 @@ $user_name = $_SESSION['first_name'] ?? 'User';
           </div>
         </div>
 
-  <div class="tranding-slider-control">
-  <!-- Navigation & Pagination -->
-  <div class="swiper-button-prev slider-arrow"> <ion-icon name="arrow-back-outline"></ion-icon> </div>
-  <div class="swiper-button-next slider-arrow"><ion-icon name="arrow-forward-outline"></ion-icon></div>
-  <div class="swiper-pagination"></div>
-</div>
-</div>
+        <div class="tranding-slider-control">
+        <!-- Navigation & Pagination -->
+        <div class="swiper-button-prev slider-arrow"> <ion-icon name="arrow-back-outline"></ion-icon> </div>
+        <div class="swiper-button-next slider-arrow"><ion-icon name="arrow-forward-outline"></ion-icon></div>
+        <div class="swiper-pagination"></div>
+      </div>
+      </div>
 
     </div>
   </section>

@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Check admin credentials first
     if ($username === "taftlab_admin@dlsu.edu.ph" && $password === "admin123") {
-        $_SESSION['user_id'] = 0; // Admin ID
+        $_SESSION['user_id'] = 901; // Admin ID
         $_SESSION['email'] = $username;
         $_SESSION['is_admin'] = true;
         header("Location: admin-homepage.php");

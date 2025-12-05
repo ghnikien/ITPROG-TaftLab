@@ -11,7 +11,6 @@ $sql = "SELECT
         LEFT JOIN laboratory l ON b.building_id = l.building_id 
         GROUP BY b.building_id
         ORDER BY b.building_id ASC";
-
 $result = $conn->query($sql);
 
 function getBuildingImage($name) {
