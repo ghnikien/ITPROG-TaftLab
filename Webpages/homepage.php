@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_name = $_SESSION['first_name'] ?? 'User';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,14 +30,15 @@
     <div class="header-right">
       <nav>
         <ul> 
-          <li><a href="#">History</a></li>
+          <li><a href="rsv-history.php">My Reservations</a></li>
           <li><a href="#">Profile</a></li>
-          <li><a href="login.php">Logout</a></li>
+          <li><a href="logout.php">Logout</a></li>
         </ul>
       </nav>
       <div class="profile-icon">
         <img src="images/profile-icon.png" alt="Profile Icon"/>
       </div>
+      <span style="margin-left: 10px; color: white;"><?php echo htmlspecialchars($user_name); ?></span>
     </div>
   </header>
 
@@ -52,7 +64,10 @@
                   <p class="card-desc">The iconic St. La Salle Hall stands as a historic symbol of the university's 
                   Lasallian heritage. Peaceful hallways and historic charm make it a favorite study spot and photo backdrop.
                   </p>
-                <button class="reserve-btn">Reserve</button>
+                <form method="POST" action="rsv-page.php" style="display:inline;">
+                  <input type="hidden" name="building_id" value="102">
+                  <button type="submit" class="reserve-btn">Reserve</button>
+                </form>
               </div>
             </div>
           </div>
@@ -68,7 +83,10 @@
                   <p class="card-desc">Known as the iconic tech hub of DLSU. where the College of Computer Studies 
                     thrives for innovation. Whether you're coding, brainstorming group projects, or grinding for deadlines.
                   </p>
-                <button class="reserve-btn">Reserve</button>
+                <form method="POST" action="rsv-page.php" style="display:inline;">
+                  <input type="hidden" name="building_id" value="101">
+                  <button type="submit" class="reserve-btn">Reserve</button>
+                </form>
               </div>
             </div>
           </div>
@@ -85,7 +103,10 @@
                     Its modern high-rise design provides a centralized learning environment where students spend their weekdays learning, 
                     meeting friends, and preparing for the college grind!
                   </p>
-                <button class="reserve-btn">Reserve</button>
+                <form method="POST" action="rsv-page.php" style="display:inline;">
+                  <input type="hidden" name="building_id" value="103">
+                  <button type="submit" class="reserve-btn">Reserve</button>
+                </form>
               </div>
             </div>
           </div>
@@ -101,7 +122,10 @@
                   <p class="card-desc">Yuchengco Hall is where classes, org events, and big assemblies come together. 
                     Its auditorium hosts talks, programs, and performances, making it one of the most active student spaces on campus.
                   </p>
-                <button class="reserve-btn">Reserve</button>
+                <form method="POST" action="rsv-page.php" style="display:inline;">
+                  <input type="hidden" name="building_id" value="105">
+                  <button type="submit" class="reserve-btn">Reserve</button>
+                </form>
               </div>
             </div>
           </div>
@@ -117,11 +141,14 @@
                   <p class="card-desc">Although Velasco Hall is the home of the Gokongwei College of Engineering, it also 
                     holds laboratory classrooms and collaborative spaces for students tp learn, code, and experiment.
                   </p>
-                <button class="reserve-btn">Reserve</button>
+                <form method="POST" action="rsv-page.php" style="display:inline;">
+                  <input type="hidden" name="building_id" value="104">
+                  <button type="submit" class="reserve-btn">Reserve</button>
+                </form>
               </div>
             </div>
           </div>
-  </div>
+        </div>
 
   <div class="tranding-slider-control">
   <!-- Navigation & Pagination -->
