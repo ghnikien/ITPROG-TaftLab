@@ -1,6 +1,7 @@
 <?php
   include "db.php";
   session_start();
+  
   if (!isset($_SESSION['user_id'])) 
   {
       header("Location: login.php");
@@ -21,22 +22,25 @@
 
     $message = "";
 
-    if($oldpass !== $opass['user_password'])
+    // verify hashed password 
+    if (!password_verify($oldpass, $opass['user_password']))
     {
         $message = "<p style='color:red;'>Current password is incorrect. Please try again.</p>";
     }
-    elseif($newpass !== $confirmpass)
+
+    elseif ($newpass !== $confirmpass)
     {
         $message = "<p style='color:red;'>New password and confirmation do not match. Please try again.</p>";
     }
+    
     else
     {
-        $sql = "UPDATE user SET user_password = '$confirmpass' WHERE user_id = $id";
+        // store new password as hash
+        $newHash = password_hash($confirmpass, PASSWORD_DEFAULT);
+        $sql = "UPDATE user SET user_password = '$newHash' WHERE user_id = $id";
         mysqli_query($conn, $sql);
         $message = "<p style='color:green;'>Password changed successfully!</p>";  
     }
-
-    
   }
 ?>
 

@@ -94,7 +94,7 @@ if (isset($_POST['submit_cred'])) {
         $error = "Email does not match the logged-in account.";
     } 
     
-    else if ($password !== $user['user_password']) {
+    else if (!password_verify($password, $user['user_password'])) {
         $error = "Incorrect password.";
     } 
     
@@ -111,7 +111,11 @@ if (isset($_POST['submit_cred'])) {
         $stmt_insert->bind_param("iisss", $user_id, $lab_id, $reserve_date, $reserve_start, $reserve_end);
 
         if ($stmt_insert->execute()) {
-            header("Location: rsv-history.php");
+            // Show success message then redirect
+            echo "<script>
+                alert('Reservation successful!');
+                window.location.href = 'rsv-page.php?redirect_building=" . intval($building_id) . "';
+            </script>";
             exit;
         } else {
             $error = "Error while saving reservation: " . $stmt_insert->error;

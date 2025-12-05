@@ -281,10 +281,13 @@ function buildingImg($code){
         <label>Choose New Timeslot</label>
         <select id="slotDropdown"></select>
 
-        <div style="margin-top:20px;">
-            <button onclick="closeModal()">Back</button>
-            <button onclick="submitReschedule()">Confirm</button>
+        <div class="modal-actions">
+            <div class="modal-actions-inner">
+                <button class="modal-btn" onclick="closeModal()">Back</button>
+                <button class="modal-btn" onclick="submitReschedule()">Confirm</button>
+            </div>
         </div>
+
 
     </div>
 </div>
