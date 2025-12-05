@@ -102,47 +102,47 @@ VALUES(901, 'IT Administrator');
 
 -- GK Labs (Building 101)
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G210', 30, 'Active');
+VALUES(101, 'GK210', 30, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G211', 30, 'Active');
+VALUES(101, 'GK211', 30, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G302A', 24, 'Active');
+VALUES(101, 'GK302A', 24, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G302B', 24, 'Active');
+VALUES(101, 'GK302B', 24, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G304A', 24, 'Active');
+VALUES(101, 'GK304A', 24, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G306A', 24, 'Active');
+VALUES(101, 'GK306A', 24, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G304B', 45, 'Active');
+VALUES(101, 'GK304B', 45, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G306B', 24, 'Active');
+VALUES(101, 'GK306B', 24, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G404A', 30, 'Active');
+VALUES(101, 'GK404A', 30, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(101, 'G404B', 30, 'Active');
+VALUES(101, 'GK404B', 30, 'Active');
 
 -- LS Labs (Building 102)
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(102, 'L212', 18, 'Active');
+VALUES(102, 'LS212', 18, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(102, 'L229', 48, 'Active');
+VALUES(102, 'LS229', 48, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(102, 'L320', 39, 'Active');
+VALUES(102, 'LS320', 39, 'Active');
 
 INSERT INTO laboratory(building_id, room_code, capacity, status)
-VALUES(102, 'L335', 44, 'Active');
+VALUES(102, 'LS335', 44, 'Active');
 
 -- Andrew Gonzales Labs (Building 103)
 INSERT INTO laboratory(building_id, room_code, capacity, status)

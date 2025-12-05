@@ -79,6 +79,7 @@ $result_labs = $stmt_labs->get_result();
 $labs = ($result_labs) ? $result_labs->fetch_all(MYSQLI_ASSOC) : [];
 
 // helper funciton to get reservation count for a lab at a specific date and time
+// the completed status is included to prevent exploitation by cancelling reservations to free up slots
 function getReservationCount($conn, $lab_id, $date, $start, $end) {
     $sql = "
         SELECT COUNT(*) AS c
@@ -117,13 +118,15 @@ function hasUserReservedSlot($conn, $user_id, $lab_id, $date, $start, $end) {
 }
 
 // to foster a 3 reservations per day limit, get count of user's reservations for today
+// takes into account only active and completed (previous)  reservations made by the user
+// the completed status is included to prevent exploitation by cancelling reservations to free up slots
 function getUserReservationCountForDay($conn, $user_id, $date) {
     $sql = "
         SELECT COUNT(*) AS c
         FROM reservation
         WHERE user_id = ?
         AND date_reserved = ?
-        AND status = 'Active'
+        AND status IN ('Active', 'Completed')
     ";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("is", $user_id, $date);
