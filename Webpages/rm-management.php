@@ -108,9 +108,13 @@
       $roomcode = $_GET['room_code'];
       echo "<p class='success'>Room $roomcode has been updated Successfully!</p>";
     }
-    else
+    elseif(isset($_GET['message']) && $_GET['message'] == 'deleted' && isset($_GET['room_code']))
     {
       echo "<p class='deleted'>Lab has been deleted!</p>";
+    }
+    else
+    {
+      //do nothing so does not show any message
     }
   ?>
 
