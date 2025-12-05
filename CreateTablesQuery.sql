@@ -93,4 +93,10 @@ INSERT INTO building (building_id, building_code, building_name)
 INSERT INTO building (building_id, building_code, building_name)
 	VALUES(105, 'Y', 'Don Enrique Yuchengco Hall');
     
+INSERT INTO user(user_id, user_type, email, user_password, full_name)
+	VALUES(901, 'Admin', 'taftlab_admin@dlsu.edu.ph', 'admin123', 'John Doe');
+
+INSERT INTO admin(user_id, job_position)
+	VALUES(901, 'IT Administrator');
+    
     

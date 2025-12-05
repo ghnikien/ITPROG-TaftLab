@@ -34,7 +34,7 @@
     <div class="header-right">
       <nav>
         <ul> 
-            <li><a href="admin-homepage.php">Back to Homepage</a></li>
+            <li><a href="homepage.php">Back to Homepage</a></li>
         </ul>
       </nav>
     </div>
@@ -55,6 +55,13 @@
             <a href="logout.php" class="logout-btn">Logout</a>
         </div>
     </div>
-    
+
+    <div class="lower-box">
+        <div class="menu-card">
+            <div class="menu-item">Settings</div>
+            <div class="menu-item"> <a href="change-password.php" class="color"> Change Password </a></div>
+        </div>
+    </div>
+
 </body>
 </html>
