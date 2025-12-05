@@ -41,11 +41,20 @@
           buildingCode CDATA #REQUIRED
           buildingName CDATA #REQUIRED>
 
-<!ELEMENT summary (totalReservations, reservationsPerBuilding)>
+<!ELEMENT summary (totalReservations, topBuildings, topRooms, topStudents)>
 <!ELEMENT totalReservations (#PCDATA)>
-<!ELEMENT reservationsPerBuilding (building*)>
 
-<!ELEMENT building EMPTY>
+<!ELEMENT topBuildings (building*)>
 <!ATTLIST building
-	code CDATA #REQUIRED
-	count CDATA #REQUIRED>
+    code CDATA #REQUIRED
+    count CDATA #REQUIRED>
+
+<!ELEMENT topRooms (room*)>
+<!ATTLIST room
+    name CDATA #REQUIRED
+    count CDATA #REQUIRED>
+
+<!ELEMENT topStudents (student*)>
+<!ATTLIST student
+    name CDATA #REQUIRED
+    count CDATA #REQUIRED>

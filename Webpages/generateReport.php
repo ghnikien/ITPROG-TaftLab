@@ -23,38 +23,58 @@ $downloadXml	= isset($_GET['download']) && $_GET['download'] == 1;
 $startDate	= null;
 $endDate	= null;
 
-// from-to Date Range Code Logic
-if (!empty($fromDate) && !empty($toDate)) {
-	$startDate	= $fromDate;
-	$endDate	= $toDate;
+// Date Range Logic
 
-	try {
-		$from = new DateTime($fromDate);
+if ($timeScope == 'ALL') {
 
-		switch ($timeScope) {
-			case 'DAY':
-				$startDate = $endDate = $from->format('Y-m-d');
-				break;
-			case 'WEEK':
-				$wkStart	= clone $from;  $wkStart->modify('monday this week');
-				$wkEnd		= clone $wkStart; $wkEnd->modify('sunday this week');
-				$startDate	= $wkStart->format('Y-m-d');
-				$endDate	= $wkEnd->format('Y-m-d');
-				break;
-			case 'MONTH':
-				$startDate	= $from->format('Y-m-01');
-				$endDate	= $from->format('Y-m-t');
-				break;
-			case 'YEAR':
-				$startDate = $from->format('Y-01-01');
-				$endDate   = $from->format('Y-12-31');
-				break;
-		}
+    // ALL requires BOTH from_date and to_date
+    if (!empty($fromDate) && !empty($toDate)) {
+        $startDate = $fromDate;
+        $endDate   = $toDate;
+    }
 
-	} catch (Exception $e) {
-		$startDate = $endDate = null;
-		$timeScope = 'ALL';
-	}
+} else {
+
+    // Other time scopes require ONLY from_date
+    if (!empty($fromDate)) {
+
+        try {
+            $from = new DateTime($fromDate);
+
+            switch ($timeScope) {
+
+                case 'DAY':
+                    $startDate = $endDate = $from->format('Y-m-d');
+                    break;
+
+                case 'WEEK':
+                    $wkStart = clone $from; 
+                    $wkStart->modify('monday this week');
+
+                    $wkEnd = clone $wkStart; 
+                    $wkEnd->modify('sunday this week');
+
+                    $startDate = $wkStart->format('Y-m-d');
+                    $endDate   = $wkEnd->format('Y-m-d');
+                    break;
+
+                case 'MONTH':
+                    $startDate = $from->format('Y-m-01');
+                    $endDate   = $from->format('Y-m-t');
+                    break;
+
+                case 'YEAR':
+                    $startDate = $from->format('Y-01-01');
+                    $endDate   = $from->format('Y-12-31');
+                    break;
+            }
+        }
+        catch (Exception $e) {
+            $startDate = $endDate = null;
+            $timeScope = 'ALL';
+        }
+
+    }
 }
 
 // Build the SQL WHERE Clause
@@ -105,26 +125,61 @@ $sql .= " ORDER BY r.date_reserved, r.reserve_startTime";
 $result = $conn->query($sql);
 $reservations = [];
 $buildingCounts = [];
+$roomCounts = [];
+$userCounts = [];
+
 $totalReservations = 0;
 
 while ($row = $result->fetch_assoc()) {
-	$reservations[] = $row;
+    $reservations[] = $row;
+    $totalReservations++;
 
-	// Count total reservations
-	$totalReservations++;
+    // Count per building
+    $bCode = $row['building_code'];
+    if (!isset($buildingCounts[$bCode])) {
+        $buildingCounts[$bCode] = 0;
+    }
+    $buildingCounts[$bCode]++;
 
-    // Count total reservations per building
-	$bCode = $row['building_code'];
-	if (!isset($buildingCounts[$bCode])) {
-		$buildingCounts[$bCode] = 0;
-	}
-	$buildingCounts[$bCode]++;
+    // Count per room
+    $room = $row['room_code'];
+    if (!isset($roomCounts[$room])) {
+        $roomCounts[$room] = 0;
+    }
+    $roomCounts[$room]++;
 
-	// Store building info if specific filter is used
-	if ($buildingSel !== 'ALL') {
-		$buildingCode = $row['building_code'];
-		$buildingName = $row['building_name'];
-	}
+    // Count per user
+    $user = $row['full_name'];
+    if (!isset($userCounts[$user])) {
+        $userCounts[$user] = 0;
+    }
+    $userCounts[$user]++;
+}
+
+// Determine top performing building (only if $buildingSel == 'ALL')
+$topBuilding = null;
+$topBuildingCount = 0;
+if ($buildingSel == 'ALL' && !empty($buildingCounts)) {
+    $topBuildingCount = max($buildingCounts);
+    $topBuilding = array_keys($buildingCounts, $topBuildingCount);
+}
+
+// Determine top performing room(s)
+if (!empty($roomCounts)) {
+    $topRoomCount = max($roomCounts);
+    $topRooms = array_keys($roomCounts, $topRoomCount);
+} else {
+    $topRoomCount = 0;
+    $topRooms = [];
+}
+
+// Determine top performing student(s)
+if (!empty($userCounts)) {
+    $topStudentCount = max($userCounts);
+    $topStudents = array_keys($userCounts, $topStudentCount);
+} else {
+    $topStudentCount = 0;
+    $topStudents = [];
 }
 
 // Fetch building list ($buildingList) for its dropdown menu
@@ -155,14 +210,37 @@ if ($downloadXml) {
     echo "  </filters>\n";
 
 	echo "  <summary>\n";
-	echo "      <totalReservations>" . xmlEscape($totalReservations) . "</totalReservations>\n";
-	echo "      <reservationsPerBuilding>\n";
 
-	foreach ($buildingCounts as $b => $count) {
-		echo "          <building code=\"" . xmlEscape($b) . "\" count=\"" . xmlEscape($count) . "\" />\n";
+	echo "      <totalReservations>"
+		. xmlEscape($totalReservations)
+		. "</totalReservations>\n";
+
+	// Top building(s)
+	echo "      <topBuildings>\n";
+	if ($buildingSel == 'ALL') {
+		foreach ($topBuilding as $b) {
+			echo "          <building code=\"" . xmlEscape($b) .
+				"\" count=\"" . xmlEscape($topBuildingCount) . "\" />\n";
+		}
 	}
+	echo "      </topBuildings>\n";
 
-	echo "      </reservationsPerBuilding>\n";
+	// Top room(s)
+	echo "      <topRooms>\n";
+	foreach ($topRooms as $room) {
+		echo "          <room name=\"" . xmlEscape($room) .
+			"\" count=\"" . xmlEscape($topRoomCount) . "\" />\n";
+	}
+	echo "      </topRooms>\n";
+
+	// Top student(s)
+	echo "      <topStudents>\n";
+	foreach ($topStudents as $student) {
+		echo "          <student name=\"" . xmlEscape($student) .
+			"\" count=\"" . xmlEscape($topStudentCount) . "\" />\n";
+	}
+	echo "      </topStudents>\n";
+
 	echo "  </summary>\n";
 
     echo "  <reservations>\n";
@@ -268,16 +346,31 @@ if ($downloadXml) {
 	<?php if (!empty($reservations)): ?>
 	
 	<!-- [Total reservations] -->
-	
+
 	<div class="summary-stats">
+		<h2>Summary</h2>
+		
 		<h4>Total Reservations: <?= $totalReservations ?></h4>
 
-		<h4>Reservations Per Building:</h4>
-		<ul>
-			<?php foreach ($buildingCounts as $b => $count): ?>
-				<li><strong><?= htmlspecialchars($b) ?>:</strong> <?= $count ?></li>
+		<?php if ($buildingSel == 'ALL'): ?>
+			<h4>Top Performing Building(s):
+				<?php foreach ($topBuilding as $b): ?>
+					<?= htmlspecialchars($b) ?> [Count = <?= $topBuildingCount ?>]
+				<?php endforeach; ?>
+			</h4>
+		<?php endif; ?>
+
+		<h4>Top Performing Room(s):
+			<?php foreach ($topRooms as $r): ?>
+				<?= htmlspecialchars($r) ?> [Count = <?= $topRoomCount ?>]
 			<?php endforeach; ?>
-		</ul>
+		</h4>
+
+		<h4>Student(s) with Most Reservations:
+			<?php foreach ($topStudents as $u): ?>
+				<?= htmlspecialchars($u) ?> [Count = <?= $topStudentCount ?>]
+			<?php endforeach; ?>
+		</h4>
 	</div>
 	
 	<!-- [Table of user reservation data]-->

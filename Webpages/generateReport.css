@@ -151,9 +151,9 @@ select {
 
 /* Preview Summary Statistics */
 .summary-stats {
-	max-width:1200px;
-	margin:20px auto;
-	font-size:16px;"
+	max-width: 1200px;
+	margin: 20px auto;
+	font-size: 16px;
 }
 
 /* Preview Report Table */
