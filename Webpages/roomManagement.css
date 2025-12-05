@@ -19,6 +19,11 @@
   font-style: italic;
 }
 
+nav ul li a:hover {
+    text-decoration: underline;
+    color: #006937;
+}
+
 .box {
     border: 8px solid #333333;
     width: 40%;
