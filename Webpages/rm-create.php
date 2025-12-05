@@ -76,7 +76,6 @@
     <div class="header-right">
       <nav>
         <ul> 
-          <li><a href="#">History</a></li>
           <li><a href="#">Profile</a></li>
           <li><a href="login.php">Logout</a></li>
         </ul>
