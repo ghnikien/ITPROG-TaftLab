@@ -28,6 +28,12 @@
                 $errorMessage = "All fields are required.";
             }
 
+            // Vallidate email ends with @dlsu.edu.ph
+            if(!$hasError && !str_ends_with($email, '@dlsu.edu.ph')) {
+                $hasError = true;
+                $errorMessage = "Email must be a valid DLSU email address (@dlsu.edu.ph).";
+            }
+
             if(!$hasError)
             {
                 // Check if email already exists
@@ -119,7 +125,7 @@
                 <input type="text" id="last_name" name="last_name" required>
 
                 <label for="email_address">Email Address</label>
-                <input type="text" id="email_address" name="email_address" required>
+                <input type="text" id="email_address" name="email_address" placeholder="user@dlsu.edu.ph" required>
 
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>

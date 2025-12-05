@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 // get user ID from session
 $user_id = intval($_SESSION['user_id']);
 // current date/time for status updates
-date_default_timezone_set('America/Chicago');
+date_default_timezone_set('Asia/Manila');
 // current date and time
 $nowDate = date("Y-m-d");
 $nowTime = date("H:i:s");
