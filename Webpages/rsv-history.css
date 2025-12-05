@@ -139,7 +139,7 @@ nav ul li a:hover {
 }
 
 
-.btn-green {
+.btn-green{
     background: #62a36b;
     border: none;
     color: white;
@@ -149,6 +149,21 @@ nav ul li a:hover {
     cursor: pointer;
     font-size: 14px;
     margin-right: 10px;
+}
+
+.back-btn {
+    background: #006937;
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 20px;
+    display: block;
+    margin: 20px auto 0;
+    margin-bottom: 100px;
 }
 
 .btn-green:hover {
