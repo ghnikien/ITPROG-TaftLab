@@ -258,7 +258,6 @@ function buildingImg($code){
                 <?php else: ?>
                     <p class="status-cancelled">CANCELLED</p>
                 <?php endif; ?>
-
             </div>
         </div>
 
@@ -266,6 +265,8 @@ function buildingImg($code){
 
     </div>
 
+    <!-- back button to homepage -->
+    <button class="back-btn" onclick="window.location.href='homepage.php'">Back</button>
 </div>
 
 <!-- view 2: reschedule portal modal -->
