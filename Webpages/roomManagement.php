@@ -1,5 +1,11 @@
 <?php
   include "db.php";
+  session_start();
+  if (!isset($_SESSION['user_id'])) 
+  {
+      header("Location: login.php");
+      exit();
+  }
 
   $LS = "SELECT COUNT(*) AS total, GROUP_CONCAT(room_code SEPARATOR ', ') as room_list 
          FROM laboratory 
@@ -60,9 +66,9 @@
     <div class="header-right">
       <nav>
         <ul> 
-           <li><a href="admin-homepage.php">Back to Dashboard</a></li>
-          <li><a href="#">Profile</a></li>
-          <li><a href="login.php">Logout</a></li>
+           <li><a href="admin-homepage.php">Back to Homepage</a></li>
+          <li><a href="admin-profile.php">Profile</a></li>
+          <li><a href="logout.php">Logout</a></li>
         </ul>
       </nav>
       <div class="profile-icon">

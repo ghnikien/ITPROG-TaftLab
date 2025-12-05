@@ -1,5 +1,12 @@
 <?php
   include "db.php";
+  
+  session_start();
+  if (!isset($_SESSION['user_id'])) 
+  {
+      header("Location: login.php");
+      exit();
+  }
 
   $totalClassrooms = 0;
 
@@ -43,9 +50,9 @@
     <div class="header-right">
       <nav>
         <ul> 
-          <li><a href="roomManagement.php">Hompage</a></li>
-          <li><a href="#">Profile</a></li>
-          <li><a href="login.php">Logout</a></li>
+          <li><a href="roomManagement.php">Buildings</a></li>
+          <li><a href="admin-profile.php">Profile</a></li>
+          <li><a href="logout.php">Logout</a></li>
         </ul>
       </nav>
       <div class="profile-icon">
