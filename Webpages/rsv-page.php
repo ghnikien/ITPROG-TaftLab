@@ -54,9 +54,14 @@ $slots = [
 date_default_timezone_set('Asia/Manila');
 $today_date = date('Y-m-d');
 
+// check if today is Sunday and if yes, block reservation access and redirect
+$php_weekday = date('D');
+if ($php_weekday === 'Sun') {
+    die("Reservations are not available on Sundays.");
+}
+
 // map date('D') to our weekday format
 $weekday_map = ['Mon'=>'Mon','Tue'=>'Tue','Wed'=>'Wed','Thu'=>'Thu','Fri'=>'Fri','Sat'=>'Sat','Sun'=>'Sun'];
-$php_weekday = date('D');
 $weekday = $weekday_map[$php_weekday] ?? $php_weekday;
 
 // fetch laboratories in the building

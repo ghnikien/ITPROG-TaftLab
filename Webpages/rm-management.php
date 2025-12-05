@@ -8,6 +8,8 @@
       exit();
   }
 
+
+
   $totalClassrooms = 0;
 
   if($_SERVER["REQUEST_METHOD"] == "GET")
@@ -25,11 +27,24 @@
     $result2 = $conn->query($totalClassroom);
     $value = $result2->fetch_assoc();
     $totalClassrooms = $value['total'];
-    
-    
   }
 
-  $conn->close();
+  function hasRestriction($conn, $lab_id, $date, $start, $end) {
+    $sql = "
+        SELECT restricted_slot_id
+        FROM restricted_slots
+        WHERE lab_id = ?
+        AND restricted_date = ?
+        AND NOT (end_time <= ? OR start_time >= ?)
+        LIMIT 1
+    ";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("isss", $lab_id, $date, $start, $end);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    return ($res && $res->num_rows > 0);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -85,7 +100,8 @@
       <tr>
         <td> <?php echo $labs['room_code'] ?> </td>
         <td> <?php echo $labs['capacity'] ?> </td>
-        <td> <?php echo $labs['status'] ?> </td>
+        <td> <?php echo $labs['status']; ?> </td>
+       
         <td> 
           <form method="GET" action="rm-update.php" style="display:inline">
             <input type="hidden" name="building_code" value="<?php echo $row['building_code']; ?>">
@@ -125,5 +141,6 @@
     }
   ?>
 
+  <?php  $conn->close(); ?>
 </body>
 </html>

@@ -9,22 +9,37 @@ if ($data) {
     $end_time = $data['end_time'];
     $status = $data['status']; 
     $subject = isset($data['subject']) ? $data['subject'] : ""; 
+    $section = isset($data['section']) ? $data['section'] : "ADMIN"; 
     $selected_date = $data['date']; 
-    
-    // Convert Date (2023-10-25) to Day ('Mon', 'Tue')
     $day_of_week = date('D', strtotime($selected_date)); 
-
     $admin_user_id = 1; 
 
-    // Find lab_id
     $sql_lab = "SELECT lab_id FROM laboratory WHERE room_code = '$room_code'";
     $result_lab = $conn->query($sql_lab);
     
     if($result_lab->num_rows > 0) {
         $lab_id = $result_lab->fetch_assoc()['lab_id'];
-        
-        $conn->query("DELETE FROM reservation WHERE lab_id = '$lab_id' AND date_reserved = '$selected_date' AND reserve_startTime = '$start_time'");
 
+        // VALIDATION: CHECK FOR EXISTING STUDENT RESERVATIONS 
+        // We block the Admin if students are already in the 'reservation' table
+        if ($status !== "Available") {
+            $check_res = "SELECT COUNT(*) as c FROM reservation 
+                          WHERE lab_id = '$lab_id' 
+                          AND date_reserved = '$selected_date' 
+                          AND reserve_startTime = '$start_time'
+                          AND status = 'Active'";
+            $res_count = $conn->query($check_res)->fetch_assoc()['c'];
+
+            if ($res_count > 0) {
+                echo json_encode(["success" => false, "error" => "Cannot change status. There are $res_count active student reservations."]);
+                exit; 
+            }
+        }
+        
+        // A. Delete from RESTRICTED_SLOTS (Red blocks)
+        $conn->query("DELETE FROM restricted_slots WHERE lab_id = '$lab_id' AND restricted_date = '$selected_date' AND start_time = '$start_time'");
+
+        // B. Delete from CLASS SCHEDULE (Orange classes)
         $delete_class = "DELETE cs FROM class_schedule cs
                          JOIN existing_class ec ON cs.class_id = ec.class_id
                          WHERE ec.lab_id = '$lab_id' 
@@ -32,42 +47,41 @@ if ($data) {
                          AND cs.start_time = '$start_time'";
         $conn->query($delete_class);
 
+
+        // STEP 2: INSERT NEW RECORD 
         if ($status == "Unavailable") {
+            // CASE 1: Red -> Insert into RESTRICTED_SLOTS
+            $stmt = $conn->prepare("INSERT INTO restricted_slots (lab_id, restricted_date, start_time, end_time) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("isss", $lab_id, $selected_date, $start_time, $end_time);
             
-            $stmt = $conn->prepare("INSERT INTO reservation (user_id, lab_id, date_reserved, reserve_startTime, reserve_endTime, status) VALUES (?, ?, ?, ?, ?, 'Unavailable')");
-            $stmt->bind_param("iisss", $admin_user_id, $lab_id, $selected_date, $start_time, $end_time);
-            $stmt->execute();
-            echo json_encode(["success" => true]);
+            if($stmt->execute()) echo json_encode(["success" => true]);
+            else echo json_encode(["success" => false, "error" => $conn->error]);
 
         } elseif ($status == "Class Ongoing") {
+            // CASE 2: Orange -> Insert into EXISTING_CLASS + CLASS_SCHEDULE
             
-            $section = "ADMIN"; 
-            
+            // Check if Class exists
             $check_class = "SELECT class_id FROM existing_class WHERE course_code = '$subject' AND section = '$section' AND lab_id = '$lab_id'";
             $res_check = $conn->query($check_class);
 
             if ($res_check->num_rows > 0) {
-                // Class exists, get ID
                 $class_id = $res_check->fetch_assoc()['class_id'];
             } else {
-                // Class doesn't exist, Create it
                 $stmt = $conn->prepare("INSERT INTO existing_class (course_code, section, lab_id) VALUES (?, ?, ?)");
                 $stmt->bind_param("ssi", $subject, $section, $lab_id);
                 $stmt->execute();
                 $class_id = $conn->insert_id;
             }
 
-            // B. Add the Schedule for this specific Day
+            // Add Schedule
             $stmt = $conn->prepare("INSERT INTO class_schedule (class_id, class_day, start_time, end_time) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("isss", $class_id, $day_of_week, $start_time, $end_time);
             
-            if ($stmt->execute()) {
-                echo json_encode(["success" => true]);
-            } else {
-                echo json_encode(["success" => false, "error" => $conn->error]);
-            }
+            if ($stmt->execute()) echo json_encode(["success" => true]);
+            else echo json_encode(["success" => false, "error" => $conn->error]);
 
         } else {
+            // CASE 3: Available -> We already cleaned up, so we are done.
             echo json_encode(["success" => true]);
         }
     } else {

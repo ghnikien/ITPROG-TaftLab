@@ -8,6 +8,19 @@
         exit();
     }
 
+    function labHasReservations($conn) {
+      $sql = "
+          SELECT *
+          FROM reservation
+          WHERE lab_id = ?
+      ";
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("i", $lab_id);
+      $stmt->execute();
+      $res = $stmt->get_result();
+      return ($res && $res->num_rows > 0);
+    }
+
     if($_SERVER["REQUEST_METHOD"] == "GET")
     {
       $bcode = $_GET['building_code'] ?? '';
@@ -39,16 +52,56 @@
         if(!$hasError)
         {           
           $full_roomcode =$b_code . $room_no;
-            $updateLab = "UPDATE laboratory SET room_code = '$full_roomcode',
-                                                capacity  = '$capacity',
-                                                status    = '$status'
-                          WHERE lab_id = $labID";
+          $updateLab = "UPDATE laboratory SET room_code = '$full_roomcode',
+                                              capacity  = '$capacity',
+                                              status    = '$status'
+                        WHERE lab_id = $labID";
 
             mysqli_query($conn, $updateLab);
+            
+            if($status === "Closed" && !labHasReservations($conn))
+            {
+              // Prevent duplicates
+              $delete = $conn->prepare("DELETE FROM restricted_slots WHERE lab_id = ?");
+              $delete->bind_param("i", $labID);
+              $delete->execute();
+
+              $slots = [
+              ["07:30:00", "09:00:00"],
+              ["09:15:00", "10:45:00"],
+              ["11:00:00", "12:30:00"],
+              ["12:45:00", "14:15:00"],
+              ["14:30:00", "16:00:00"],
+              ["16:15:00", "17:45:00"],
+              ["18:00:00", "19:30:00"]
+            ];
+
+              $today = date("Y-m-d");
+              
+              $insert_restrictedSlots = $conn->prepare("INSERT INTO restricted_slots (lab_id, restricted_date, start_time, end_time)
+                                                        VALUES (?, ?, ?, ?)");
+              foreach($slots as $slot)
+              {
+                $start = $slot[0];
+                $end = $slot[1];
+                $insert_restrictedSlots->bind_param("isss", $labID, $today, $start, $end);
+                $insert_restrictedSlots->execute();
+
+              }
+            }
+            else
+            {
+               // If room is NOT closed, remove all restrictions
+              $delete = $conn->prepare("DELETE FROM restricted_slots WHERE lab_id = ?");
+              $delete->bind_param("i", $labID);
+              $delete->execute();
+            }
+
             header("Location: {$pageRequester}?type=$b_code&message=updated&room_code=$full_roomcode");
             $hasError = false;
             exit();
         }
+
         mysqli_close($conn);
     }
 ?>
@@ -112,7 +165,6 @@
       <select name="status" required>
           <option value ="">-- Select Status --</option>
           <option value ="Active" <?php if($row['status'] == 'Active') echo 'selected';?>>Active</option>
-          <option value ="Maintenance" <?php if($row['status'] == 'Maintenance') echo 'selected';?>>Maintenance</option>
           <option value ="Closed" <?php if($row['status'] == 'Closed') echo 'selected';?>>Closed</option>
       </select>
     </div>

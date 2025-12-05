@@ -2,42 +2,75 @@
 include "db.php";
 
 $building_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-$selected_day = isset($_GET['day']) ? $_GET['day'] : "Monday"; // "Monday"
+$selected_day = isset($_GET['day']) ? $_GET['day'] : "Monday"; 
 
-// Calculate the specific DATE (2023-12-04)
-$target_date = date('Y-m-d', strtotime("next $selected_day"));
-// Calculate the 3-letter DAY code for the database ("Mon")
-$db_day_enum = date('D', strtotime("next $selected_day"));
+$target_date = date('Y-m-d', strtotime("this week $selected_day"));
+$db_day_enum = date('D', strtotime($target_date));
 
-// 1. Fetch Building Name
+// 1. Fetch Building & Rooms
 $sql_building = "SELECT building_name FROM building WHERE building_id = $building_id";
 $result_building = $conn->query($sql_building);
 $building_name = ($result_building->num_rows > 0) ? $result_building->fetch_assoc()['building_name'] : "Unknown Building";
 
-// 2. Fetch Rooms & Capacity
-$sql_rooms = "SELECT room_code, capacity FROM laboratory WHERE building_id = $building_id ORDER BY room_code";
+$sql_rooms = "SELECT lab_id, room_code, capacity FROM laboratory WHERE building_id = $building_id ORDER BY room_code";
 $result_rooms = $conn->query($sql_rooms);
 
-// 3. FETCH DATA (The Merge Logic)
+// 3. FETCH DATA (Merge 3 Tables)
 $booked_slots = [];
 
-// A. Check RESERVATIONS (For "Unavailable" / Red status)
-$sql_res = "SELECT l.room_code, r.reserve_startTime, r.status 
+$time_slots = [
+    ["07:30", "09:00"], ["09:15", "10:45"], ["11:00", "12:30"],
+    ["12:45", "14:15:00"], ["14:30", "16:00"], ["16:15", "17:45"],
+    ["18:00", "19:30"], ["19:45", "21:15"]
+];
+
+// A. Check STUDENT RESERVATIONS (Green/Counts)
+$sql_res = "SELECT l.room_code, r.reserve_startTime, COUNT(*) as student_count 
             FROM reservation r 
             JOIN laboratory l ON r.lab_id = l.lab_id 
             WHERE l.building_id = $building_id 
-            AND r.date_reserved = '$target_date'";
+            AND r.date_reserved = '$target_date'
+            AND r.status = 'Active' 
+            GROUP BY l.room_code, r.reserve_startTime";
 $res_query = $conn->query($sql_res);
 while($row = $res_query->fetch_assoc()) {
     $booked_slots[$row['room_code']][$row['reserve_startTime']] = [
-        'type' => 'reservation',
-        'status' => $row['status'], 
-        'subject' => ''
+        'type' => 'student_booking',
+        'status' => 'Available',
+        'count' => $row['student_count']
     ];
 }
 
-// B. Check CLASSES (For "Class Ongoing" / Orange status)
-// We join existing_class and class_schedule
+// B. Check RESTRICTED SLOTS (Red/Unavailable)
+$sql_restricted = "SELECT l.room_code, rs.start_time, rs.end_time
+                   FROM restricted_slots rs
+                   JOIN laboratory l ON rs.lab_id = l.lab_id
+                   WHERE l.building_id = $building_id
+                   AND rs.restricted_date = '$target_date'";
+$res_restricted = $conn->query($sql_restricted);
+while($row = $res_restricted->fetch_assoc()) {
+    // Admin restriction overrides student view
+    $room = $row['room_code'];
+    $start = $row['start_time'];
+    $end = $row['end_time'];
+
+    foreach($time_slots as $slot)
+    {
+        $slotStart = $slot[0];
+        $slotEnd = $slot[1];
+
+        if(($slotStart < $end) && ($slotEnd > $start))
+        {
+            $booked_slots[$room][$slotStart] = [
+                'type' => 'admin_block',
+                'status' => 'Unavailable',
+                'count' => 0
+            ];
+        }
+    }
+}
+
+// C. Check CLASSES (Orange)
 $sql_class = "SELECT l.room_code, ec.course_code, cs.start_time 
               FROM class_schedule cs
               JOIN existing_class ec ON cs.class_id = ec.class_id
@@ -46,21 +79,18 @@ $sql_class = "SELECT l.room_code, ec.course_code, cs.start_time
               AND cs.class_day = '$db_day_enum'";
 $class_query = $conn->query($sql_class);
 while($row = $class_query->fetch_assoc()) {
-    // Reservations (Red) usually override Classes (Orange) if they conflict, 
-    if (!isset($booked_slots[$row['room_code']][$row['start_time']])) {
+    if (!isset($booked_slots[$row['room_code']][$row['start_time']]) || 
+        $booked_slots[$row['room_code']][$row['start_time']]['type'] !== 'admin_block') {
+        
         $booked_slots[$row['room_code']][$row['start_time']] = [
             'type' => 'class',
             'status' => 'Class Ongoing',
-            'subject' => $row['course_code']
+            'subject' => $row['course_code'],
+            'count' => 0
         ];
     }
 }
 
-$time_slots = [
-    ["07:30:00", "09:00:00"], ["09:15:00", "10:45:00"], ["11:00:00", "12:30:00"],
-    ["12:45:00", "14:15:00"], ["14:30:00", "16:00:00"], ["16:15:00", "17:45:00"],
-    ["18:00:00", "19:30:00"], ["19:45:00", "21:15:00"]
-];
 
 $days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBADM", "ITISMOB", "CCPROG1", "CCPROG2", "CCPROG3", "ITCMSY2"];
@@ -88,6 +118,7 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
         .status-available { background-color: #28a745; color: white; cursor: pointer; } 
         .status-ongoing { background-color: #fd7e14; color: white; cursor: pointer; } 
         .status-unavailable { background-color: #dc3545; color: white; cursor: pointer; } 
+        .status-booked { background-color: #218838; color: white; cursor: pointer; border: 2px solid #fff; }
 
         #editFormSection { display: none; border: 2px solid #006937; padding: 30px; border-radius: 10px; text-align: center; max-width: 500px; margin: 0 auto; background: white; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 20px; text-align: left; }
@@ -95,7 +126,7 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
         .form-group select, .form-group input { width: 100%; padding: 10px; font-size: 14px; border-radius: 5px; border: 1px solid #ccc; }
         .btn-confirm { background-color: #006937; color: white; padding: 10px 30px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .btn-cancel { background-color: #888; color: white; padding: 10px 30px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        #subjectGroup { display: none; } 
+        #subjectGroup, #sectionGroup { display: none; } 
     </style>
 </head>
 <body>
@@ -121,7 +152,7 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
                     </option>
                 <?php endforeach; ?>
             </select>
-            <span style="margin-left: 15px; font-size: 14px; color: #555;">(Editing schedule for: <?php echo $target_date; ?>)</span>
+            <span style="margin-left: 15px; font-size: 14px; color: #555;">(Editing for: <?php echo $target_date; ?>)</span>
         </div>
 
         <div id="tableView">
@@ -144,17 +175,17 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
                             foreach($time_slots as $slot) {
                                 $start = $slot[0]; $end = $slot[1];
                                 
-                                // Default: Available
                                 $status = "Available";
                                 $subject = "";
-                                $displayText = "0 / " . $capacity; 
+                                $count = 0;
                                 $class = "status-available";
 
-                                // Check merged array
                                 if (isset($booked_slots[$room][$start])) {
                                     $data = $booked_slots[$room][$start];
                                     $status = $data['status'];
-                                    $subject = $data['subject'];
+                                    
+                                    if(isset($data['subject'])) $subject = $data['subject'];
+                                    if(isset($data['count'])) $count = $data['count'];
                                 }
 
                                 if ($status == "Unavailable") {
@@ -163,10 +194,13 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
                                 } elseif ($status == "Class Ongoing") {
                                     $class = "status-ongoing";
                                     $displayText = "Class Ongoing<br>(" . $subject . ")";
+                                } else {
+                                    $displayText = $count . " / " . $capacity;
+                                    if($count > 0) $class = "status-booked"; 
                                 }
 
                                 echo "<td class='$class' 
-                                          onclick=\"openEditForm('$room', '$capacity', '$start', '$end', '$status', '$subject')\">
+                                          onclick=\"openEditForm('$room', '$capacity', '$start', '$end', '$status', '$subject', '$count')\">
                                           $displayText
                                       </td>";
                             }
@@ -182,6 +216,8 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
         <div id="editFormSection">
             <h3 style="margin-bottom: 20px;">Edit Schedule</h3>
             
+            <input type="hidden" id="currentCount">
+
             <div class="form-group">
                 <label>Day:</label>
                 <input type="text" value="<?php echo $selected_day; ?>" disabled style="background:#eee;">
@@ -209,10 +245,16 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
             <div class="form-group" id="subjectGroup">
                 <label>Subject:</label>
                 <select id="editSubject">
+                    <option value="" disabled selected>-- Select Subject --</option>
                     <?php foreach($subjects_list as $sub): ?>
                         <option value="<?php echo $sub; ?>"><?php echo $sub; ?></option>
                     <?php endforeach; ?>
                 </select>
+            </div>
+
+            <div class="form-group" id="sectionGroup">
+                <label>Section:</label>
+                <input type="text" id="editSection" placeholder="e.g. S11">
             </div>
 
             <div style="margin-top: 30px;">
@@ -232,7 +274,7 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
         window.location.href = "edit-schedule.php?id=<?php echo $building_id; ?>&day=" + day;
     }
 
-    function openEditForm(room, capacity, start, end, currentStatus, currentSubject) {
+    function openEditForm(room, capacity, start, end, currentStatus, currentSubject, currentCount) {
         selectedRoom = room;
         selectedStart = start;
         selectedEnd = end;
@@ -240,7 +282,9 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
         document.getElementById('editRoom').value = room + " (Max: " + capacity + ")";
         document.getElementById('editTime').value = start.substring(0,5) + " - " + end.substring(0,5);
         document.getElementById('editStatus').value = currentStatus;
+        document.getElementById('currentCount').value = currentCount;
         
+        document.getElementById('editSubject').value = ""; // Reset dropdown
         if (currentSubject) {
             document.getElementById('editSubject').value = currentSubject;
         }
@@ -258,18 +302,36 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
     function toggleSubjectField() {
         let status = document.getElementById('editStatus').value;
         let subjectGroup = document.getElementById('subjectGroup');
+        let sectionGroup = document.getElementById('sectionGroup');
         if (status === "Class Ongoing") {
             subjectGroup.style.display = "block";
+            sectionGroup.style.display = "block";
         } else {
             subjectGroup.style.display = "none";
+            sectionGroup.style.display = "none";
         }
     }
 
     function confirmUpdate() {
         let newStatus = document.getElementById('editStatus').value;
         let newSubject = document.getElementById('editSubject').value;
+        let newSection = document.getElementById('editSection').value;
+        let currentStudentCount = parseInt(document.getElementById('currentCount').value);
 
-        if (newStatus !== "Class Ongoing") newSubject = "";
+        if (currentStudentCount > 0 && newStatus !== "Available") {
+            alert("Cannot change status: There are " + currentStudentCount + " active student reservations.");
+            return;
+        }
+
+        if (newStatus === "Class Ongoing" && newSubject === "") {
+            alert("Please select a Subject.");
+            return;
+        }
+
+        if (newStatus !== "Class Ongoing") {
+            newSubject = "";
+            newSection = "";
+        }
 
         fetch('save-schedule.php', {
             method: 'POST',
@@ -280,6 +342,7 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
                 end_time: selectedEnd,
                 status: newStatus,
                 subject: newSubject,
+                section: newSection,
                 date: targetDate
             })
         })
