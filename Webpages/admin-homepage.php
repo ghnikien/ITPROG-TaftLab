@@ -62,7 +62,7 @@
     <div class="box-text">
         <h3> Generate Report Summary </h3>
         <p> Generate summary reports for reserved schedules of users for the given day, month, and year, as well as the building. </p>
-        <a href="#" class="admin-btn">Generate Reports</a>
+        <a href="generateReport.php" class="admin-btn">Generate Reports</a>
     </div>
   </div>
     
