@@ -176,7 +176,12 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
                     ?>
                 </tbody>
             </table>
-            <a href="scheduleManagement.php" style="color: #555; text-decoration: none; font-weight: bold;">Back to Dashboard</a>
+            
+        <a href="scheduleManagement.php" 
+        style="display: block; text-align: center; background: #006937; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; text-decoration: none; width: fit-content; margin: 20px auto;">
+        Back to Dashboard
+        </a>
+
         </div>
 
         <div id="editFormSection">
