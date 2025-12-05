@@ -30,7 +30,7 @@ CREATE TABLE laboratory(
     building_id INT NOT NULL,
     room_code VARCHAR(10) NOT NULL,
     capacity INT NOT NULL, 
-    status ENUM('Active', 'Maintenance', 'Closed') NOT NULL,
+    status ENUM('Active', 'Closed') NOT NULL,
     FOREIGN KEY (building_id) REFERENCES building(building_id) ON DELETE RESTRICT ON UPDATE CASCADE,
     UNIQUE(building_id, room_code)
 );
@@ -66,7 +66,7 @@ CREATE TABLE reservation (
 	end_time TIME NOT NULL,
     FOREIGN KEY (class_id) REFERENCES existing_class(class_id) ON DELETE CASCADE ON UPDATE CASCADE, #schedules are removed if class is deleted
     UNIQUE(class_id, class_day, start_time, end_time)
- );
+ ); 	
 
 CREATE TABLE restricted_slots(
     restricted_slot_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -78,6 +78,8 @@ CREATE TABLE restricted_slots(
     UNIQUE(lab_id, restricted_date, start_time, end_time)
 );
 
+
+#GK labs
  INSERT INTO building (building_id, building_code, building_name)
 	VALUES(101, 'GK', 'Gokongwei Hall');
     
@@ -99,4 +101,85 @@ INSERT INTO user(user_id, user_type, email, user_password, full_name)
 INSERT INTO admin(user_id, job_position)
 	VALUES(901, 'IT Administrator');
     
+#GK labs
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(201, 101, 'G210', 30);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(202, 101, 'G211', 30);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(203, 101, 'G302A', 24);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(204, 101, 'G302B', 24);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(205, 101, 'G304A', 24);
+
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(206, 101, 'G306A', 24);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(207, 101, 'G304B', 45);
+
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(208, 101, 'G306B', 24);
+
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(209, 101, 'G404A', 30);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(210, 101, 'G404B', 30);
+    
+    
+#LS labs
+INSERT INTO laboratory(lab_id, building_id, room_code, capacity)
+	VALUES(211, 102, 'L212', 18);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(212, 102, 'L229', 48);
+
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(213, 102, 'L320', 39);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(214, 102, 'L335', 44);
+    
+#Andrew labs
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(215, 103, 'AG1706', 45);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(216, 103, 'AG1904', 45);
+    
+#Velasco labs
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(217, 104, 'V103', 29);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(218, 104, 'V205', 24);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(219, 104, 'V206', 24);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(220, 104, 'V208A', 22);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(221, 104, 'V208B', 22);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(222, 104, 'V301', 35);
+    
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(223, 104, 'V10', 28);
+    
+#Yuch labs
+INSERT INTO laboratory(building_id, room_code, capacity)
+	VALUES(224, 105, 'Y602', 28);
+
+
+
+
     
