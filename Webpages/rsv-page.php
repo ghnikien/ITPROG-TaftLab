@@ -51,7 +51,7 @@ $slots = [
 ];
 
 // obtain today's date and weekday
-date_default_timezone_set('America/Chicago');
+date_default_timezone_set('Asia/Manila');
 $today_date = date('Y-m-d');
 
 // check if today is Sunday and if yes, block reservation access and redirect
