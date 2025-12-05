@@ -25,56 +25,51 @@ $endDate	= null;
 
 // Date Range Logic
 
-if ($timeScope == 'ALL') {
+// If timeScope that isn't 'ALL' has an empty fromDate
+if ($timeScope !== 'ALL' && empty($fromDate)) {
+    // Assign a impossible date range so SQL returns nothing, rough solution but it works xd
+    $startDate = '9999-12-31';
+    $endDate = '9999-12-31';
+}
 
-    // ALL requires BOTH from_date and to_date
-    if (!empty($fromDate) && !empty($toDate)) {
-        $startDate = $fromDate;
-        $endDate   = $toDate;
-    }
+if (!empty($fromDate)) {
 
-} else {
+	try {
+		$from = new DateTime($fromDate);
 
-    // Other time scopes require ONLY from_date
-    if (!empty($fromDate)) {
+		switch ($timeScope) {
 
-        try {
-            $from = new DateTime($fromDate);
+			case 'DAY':
+				$startDate = $endDate = $from->format('Y-m-d');
+				break;
 
-            switch ($timeScope) {
+			case 'WEEK':
+				$wkStart = clone $from; 
+				$wkStart->modify('monday this week');
 
-                case 'DAY':
-                    $startDate = $endDate = $from->format('Y-m-d');
-                    break;
+				$wkEnd = clone $wkStart; 
+				$wkEnd->modify('sunday this week');
 
-                case 'WEEK':
-                    $wkStart = clone $from; 
-                    $wkStart->modify('monday this week');
+				$startDate = $wkStart->format('Y-m-d');
+				$endDate   = $wkEnd->format('Y-m-d');
+				break;
 
-                    $wkEnd = clone $wkStart; 
-                    $wkEnd->modify('sunday this week');
+			case 'MONTH':
+				$startDate = $from->format('Y-m-01');
+				$endDate   = $from->format('Y-m-t');
+				break;
 
-                    $startDate = $wkStart->format('Y-m-d');
-                    $endDate   = $wkEnd->format('Y-m-d');
-                    break;
+			case 'YEAR':
+				$startDate = $from->format('Y-01-01');
+				$endDate   = $from->format('Y-12-31');
+				break;
+		}
+	}
+	catch (Exception $e) {
+		$startDate = $endDate = null;
+		$timeScope = 'ALL';
+	}
 
-                case 'MONTH':
-                    $startDate = $from->format('Y-m-01');
-                    $endDate   = $from->format('Y-m-t');
-                    break;
-
-                case 'YEAR':
-                    $startDate = $from->format('Y-01-01');
-                    $endDate   = $from->format('Y-12-31');
-                    break;
-            }
-        }
-        catch (Exception $e) {
-            $startDate = $endDate = null;
-            $timeScope = 'ALL';
-        }
-
-    }
 }
 
 // Build the SQL WHERE Clause
