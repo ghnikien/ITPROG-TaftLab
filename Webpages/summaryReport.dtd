@@ -1,7 +1,9 @@
-<!ELEMENT reservationSummary (filters, reservations)>
+<!ELEMENT reservationSummary (title, filters, summary, reservations)>
 <!ATTLIST reservationSummary
           generatedAt CDATA #REQUIRED
           timeScope (ALL|DAY|WEEK|MONTH|YEAR) #REQUIRED>
+
+<!ELEMENT title (#PCDATA)>
 
 <!ELEMENT filters (dateRange, buildingFilter)>
 

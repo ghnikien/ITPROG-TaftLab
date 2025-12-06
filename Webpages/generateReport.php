@@ -177,10 +177,46 @@ if (!empty($userCounts)) {
     $topStudents = [];
 }
 
+// Assign building name for XML generation
+$buildingName = "";
+
+if ($buildingSel != 'ALL') {
+    $stmt = $conn->prepare("SELECT building_name FROM building WHERE building_id = ?");
+    $stmt->bind_param("i", $buildingSel);
+    $stmt->execute();
+    $stmt->bind_result($buildingName);
+    $stmt->fetch();
+    $stmt->close();
+}
+
 // Fetch building list ($buildingList) for its dropdown menu
 $buildingList = [];
 $bQuery = $conn->query("SELECT * FROM building ORDER BY building_code");
 while ($row = $bQuery->fetch_assoc()) $buildingList[] = $row;
+
+// XML Generation "title" conditions
+$currentLabel = date('Y-m-d_His');
+$title = "Reservation Summary Report";
+
+// CASE 1: ALL time, ALL buildings
+if ($timeScope == 'ALL' && $buildingSel == 'ALL') {
+    $title = "Reservation Summary Report";
+}
+
+// CASE 2: ALL time, specific building
+else if ($timeScope == 'ALL' && $buildingSel != 'ALL') {
+    $title = "Reservation Summary Report - " . $buildingName;
+}
+
+// CASE 3: Specific time, ALL buildings
+else if ($timeScope != 'ALL' && $buildingSel == 'ALL') {
+    $title = "Reservation Summary Report - " . $currentLabel;
+}
+
+// CASE 4: Specific time, specific building
+else if ($timeScope != 'ALL' && $buildingSel != 'ALL') {
+    $title = "Reservation Summary Report - " . $buildingName . " - " . $currentLabel;
+}
 
 // XML Generation
 if ($downloadXml) {
@@ -190,7 +226,8 @@ if ($downloadXml) {
     echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     echo "<!DOCTYPE reservationSummary SYSTEM \"summaryReport.dtd\">\n";
 
-    echo "<reservationSummary generatedAt=\"" . xmlEscape(date('c')) . "\" timeScope=\"$timeScope\">\n";
+	echo "<reservationSummary generatedAt=\"" . xmlEscape(date('c')) . "\" timeScope=\"$timeScope\">\n";
+	echo "  <title>" . xmlEscape($title) . "</title>\n";
 
     echo "  <filters>\n";
     echo "    <dateRange from=\"" . xmlEscape($startDate) . "\" to=\"" . xmlEscape($endDate) . "\" />\n";
@@ -343,8 +380,11 @@ if ($downloadXml) {
 	<!-- [Total reservations] -->
 
 	<div class="summary-stats">
+
 		<h2>Summary</h2>
 		
+		<h4>Title of the report: <?= $title ?></h4>
+
 		<h4>Total Reservations: <?= $totalReservations ?></h4>
 
 		<?php if ($buildingSel == 'ALL'): ?>
