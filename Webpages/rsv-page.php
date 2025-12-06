@@ -218,13 +218,15 @@ $userDayReservations = getUserReservationCountForDay($conn, $user_id, $today_dat
     <section class="guidelines">
         <h2>Reservation Guidelines</h2>
         <ol>
-            <li>You can only book a slot for <strong>today</strong>.</li>
-            <li>Service hours follow DLSU ITS policies: 07:30AM to 07:30PM.</li>
-            <li>Click only the green-colored slots.</li>
-            <li>After selecting, review details and confirm.</li>
-            <li>You may cancel before the start time.</li>
-            <li>You can reserve up to 3 times per day.</li>
-            <li>You cannot reserve the same slot more than once.</li>
+            <li>DLSU students can only book a reservation slot for the <strong>current date</strong>.</li>
+            <li>Reservation service hours adhere to DLSU ITS policies, where computer labs are operational from <strong> 07:30AM to 07:30PM </strong>.</li>
+            <li>The <strong> green-colored slots </strong> indicate a free, available slot for DLSU student to use. However, take note of the capacity.</li>
+            <li>DLSU students can only reserve once in a specifc slot. Also, to optimize resources, students are limited to <strong> three (3) reservations per day. </strong> </li>
+            <li>The color-coded legends represent the status of a slot. <strong> Full, class, and restricted slots cannot be reserved </strong> by students when prompted. </li>
+            <li>After selecting a slot, for confirmatory purposes, DLSU students must enter their <strong> registered DLSU email address and password </strong> to formally book the slot. </li>
+            <li>DLSU students may <strong> reschedule their slot in terms of its time schedule </strong>, provided that the new time slot offers free availability as well. 
+            <li>DLSU students may also <strong> cancel </strong> their reserved slot <strong> before the schedule of their reservation </strong>. This is strongly advised to avoid penalties. </strong> </li>
+            </li>
         </ol>
     </section>
 
