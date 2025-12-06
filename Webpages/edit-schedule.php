@@ -1,6 +1,13 @@
 <?php
 include "db.php";
 
+ session_start();
+  if (!isset($_SESSION['user_id'])) 
+  {
+      header("Location: login.php");
+      exit();
+  }
+
 $building_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Get current day name (e.g., "Monday")
@@ -376,3 +383,4 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
 
 </body>
 </html>
+
