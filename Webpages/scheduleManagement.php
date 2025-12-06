@@ -1,6 +1,13 @@
 <?php
 include "db.php"; 
 
+ session_start();
+  if (!isset($_SESSION['user_id'])) 
+  {
+      header("Location: login.php");
+      exit();
+  }
+
 // Query to get buildings and their rooms
 $sql = "SELECT 
             b.building_id, 
@@ -81,4 +88,5 @@ function getBuildingImage($name) {
     </div>
 
 </body>
+
 </html>
