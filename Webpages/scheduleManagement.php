@@ -41,7 +41,7 @@ function getBuildingImage($name) {
         <div class="header-right">
             <nav>
                 <ul>
-                    <li><a href="admin-homepage.php">Back to Dashboard</a></li>
+                    <li><a href="admin-homepage.php">  </a></li>
                     <li><a href="#">Profile</a></li>
                     <li><a href="login.php">Logout</a></li>
                 </ul>

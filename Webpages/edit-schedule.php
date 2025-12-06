@@ -2,7 +2,12 @@
 include "db.php";
 
 $building_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-$selected_day = isset($_GET['day']) ? $_GET['day'] : "Monday"; 
+
+// Get current day name (e.g., "Monday")
+$today_day_name = date('l');
+
+// Use GET parameter if provided, otherwise use today
+$selected_day = isset($_GET['day']) ? $_GET['day'] : $today_day_name;
 
 $today = date('Y-m-d');
 $target_date = date('Y-m-d', strtotime("next $selected_day"));
@@ -26,7 +31,7 @@ $booked_slots = [];
 $time_slots = [
     ["07:30:00", "09:00:00"], ["09:15", "10:45:00"], ["11:00:00", "12:30:00"],
     ["12:45:00", "14:15:00"], ["14:30:00", "16:00:00"], ["16:15:00", "17:45:00"],
-    ["18:00:00", "19:30:00"], ["19:45:00", "21:15:00"]
+    ["18:00:00", "19:30:00"]
 ];
 
 // A. Check STUDENT RESERVATIONS (Green/Counts)
@@ -139,7 +144,7 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
     <header>
         <div class="logo"><img src="images/taftlab-logo.png" alt="Taft Lab Logo"></div>
         <div class="header-right">
-            <nav><ul><li><a href="scheduleManagement.php">Back to Dashboard</a></li></ul></nav>
+            <nav><ul><li><a href="scheduleManagement.php"> </a></li></ul></nav>
         </div>
     </header>
 
@@ -215,7 +220,13 @@ $subjects_list = ["IT-PROG", "CCINFOM", "CCAPDEV", "ITNET01", "ITNET02", "ITDBAD
                     ?>
                 </tbody>
             </table>
-            <a href="scheduleManagement.php" style="color: #555; text-decoration: none; font-weight: bold;">Back to Dashboard</a>
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="scheduleManagement.php" 
+                style="background-color: #006937; color: white; text-decoration: none; 
+                        font-weight: bold; padding: 10px 25px; border-radius: 20px; display: inline-block;">
+                    Back to Dashboard
+                </a>
+            </div>
         </div>
 
         <div id="editFormSection">
