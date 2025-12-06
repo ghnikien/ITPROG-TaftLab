@@ -149,7 +149,7 @@
     <div class="header-right">
       <nav>
         <ul> 
-          <li><a href="admin-profile">Profile</a></li>
+          <li><a href="admin-profile.php">Profile</a></li>
           <li><a href="logout.php">Logout</a></li>
         </ul>
       </nav>
