@@ -48,8 +48,8 @@ function getBuildingImage($name) {
         <div class="header-right">
             <nav>
                 <ul>
-                    <li><a href="admin-homepage.php">  </a></li>
-                    <li><a href="#">Profile</a></li>
+                    <li><a href="admin-homepage.php"> Back to Homepage </a></li>
+                    <li><a href="admin-profile.php">Profile</a></li>
                     <li><a href="login.php">Logout</a></li>
                 </ul>
             </nav>
@@ -90,3 +90,4 @@ function getBuildingImage($name) {
 </body>
 
 </html>
+
